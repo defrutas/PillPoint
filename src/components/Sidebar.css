@@ -1,0 +1,29 @@
+/* Sidebar.css */
+.sidebar {
+    background-color: #1B262C;
+    width: 12rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    padding-top: 3em;
+    gap: 1rem;
+    position: fixed;
+    left: 0;
+    top: 4rem; /* Adjust to your needs */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sidebar-link {
+    color: #fff;
+    font-weight: 1000;
+    font-size: 15px;
+    padding-bottom: 2em;
+    transition: color 0.2s ease-in-out;
+    text-decoration: none;
+  }
+  
+  .sidebar-link:hover {
+    color: #BBE1FA;
+  }
+  
