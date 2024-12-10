@@ -1,7 +1,7 @@
 /* Sidebar.css */
 .sidebar {
-    background-color: #1B262C;
-    width: 12rem;
+    background-color: #0F4C75;
+    width: 13rem;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -16,8 +16,9 @@
   
   .sidebar-link {
     color: #fff;
+    font-style: arial;
     font-weight: 1000;
-    font-size: 15px;
+    font-size: 16px;
     padding-bottom: 2em;
     transition: color 0.2s ease-in-out;
     text-decoration: none;

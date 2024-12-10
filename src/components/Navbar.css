@@ -1,7 +1,7 @@
 /* Navbar container */
 .navbar {
-  background-color: #1B262C;
-  height: 4em;
+  background-color: #fff;
+  height: 5em;
   padding: 1rem;
   display: flex;
   justify-content: space-between;
@@ -15,8 +15,8 @@
 
 /* Navbar logo */
 .navbar-logo {
-  color: #fff;
-  font-size: 1.5rem;
+  color: #000;
+  font-size: 2.5rem;
   font-weight: bold;
 }
 

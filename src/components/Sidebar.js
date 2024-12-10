@@ -6,13 +6,22 @@ const Sidebar = () => {
   return (
     <div className="sidebar">
       <Link to="/" className="sidebar-link">
-        Home
+        Página Inicial
       </Link>
-      <Link to="/products" className="sidebar-link">
-        Products
+      <Link to="/product" className="sidebar-link">
+        Medicamentos
       </Link>
       <Link to="/requests" className="sidebar-link">
-        Requests
+        Requisições
+      </Link>
+      <Link to="/orders" className="sidebar-link">
+        Encomendas
+      </Link>
+      <Link to="/alerts" className="sidebar-link">
+        Alertas
+      </Link>
+      <Link to="/contacts" className="sidebar-link">
+        Contactos
       </Link>
     </div>
   );
