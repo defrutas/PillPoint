@@ -75,14 +75,29 @@ const balancearStock = async () => {
                         FROM servicosBD.Requisicao
                         WHERE profissionalID = 1 AND adminID = 1 AND estadoID = 1 AND requisicaoCompleta = false
                         AND dataRequisicao >= NOW() - interval '1 day'
+                        AND requisicaoID IN (
+                            SELECT requisicaoID
+                            FROM servicosBD.Medicamento_Encomenda
+                            WHERE medicamentoID = $1
+                        )
                     `;
-                    const verificarRequisicaoResult = await pool.query(verificarRequisicaoQuery);
+                    const verificarRequisicaoResult = await pool.query(verificarRequisicaoQuery, [med.medicamentoid]);
                     if (verificarRequisicaoResult.rows[0].count == 0) {
                         const criarRequisicaoQuery = `
                             INSERT INTO servicosBD.Requisicao (estadoID, profissionalID, adminID, aprovadoPorAdministrador, requisicaoCompleta, dataRequisicao, dataEntrega)
                             VALUES (1, 1, 1, false, false, NOW(), NOW() + interval '7 days')
+                            RETURNING requisicaoID
                         `;
-                        await pool.query(criarRequisicaoQuery);
+                        const criarRequisicaoResult = await pool.query(criarRequisicaoQuery);
+                        const novaRequisicaoID = criarRequisicaoResult.rows[0].requisicaoid;
+
+                        // Vincular medicamento à requisição
+                        const vincularMedicamentoQuery = `
+                            INSERT INTO servicosBD.Medicamento_Encomenda (medicamentoID, requisicaoID, quantidade)
+                            VALUES ($1, $2, $3)
+                        `;
+                        await pool.query(vincularMedicamentoQuery, [med.medicamentoid, novaRequisicaoID, med.quantidademinima - atualQuantidadeFinalResult.rows[0].quantidadedisponivel]);
+
                         console.log(`Requisição criada para ${med.nomemedicamento}, Serviço: ${med.localidadeServico || 'Desconhecido'} (${med.tipoServico || 'Desconhecido'})`);
                     } else {
                         console.log(`Requisição já existente para ${med.nomemedicamento}, Serviço: ${med.localidadeServico || 'Desconhecido'} (${med.tipoServico || 'Desconhecido'})`);
