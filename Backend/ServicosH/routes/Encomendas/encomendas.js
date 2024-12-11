@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getPool } = require('../db');
+const { getPool } = require('../../db'); // Updated path
 
 // Rota para criar uma encomenda manual
 router.post('/create', async (req, res) => {

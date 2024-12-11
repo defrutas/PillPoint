@@ -1,12 +1,9 @@
 const express = require('express');
-const app = express();
-const { getPool } = require('./db');
-const PORT = process.env.PORT || 5000;
+const router = express.Router();
+const { getPool } = require('../../db'); // Updated path
 
-app.use(express.json());
-
-// Função para verificar e balancear o stock
-const balancearStock = async () => {
+// Function to balance stock
+const balancearStock = async (req, res) => {
     try {
         const pool = getPool();
         const query = `
@@ -20,13 +17,14 @@ const balancearStock = async () => {
         `;
         const result = await pool.query(query);
         const medicamentos = result.rows;
+        const response = [];
 
         for (const med of medicamentos) {
             if (med.quantidadedisponivel < med.quantidademinima) {
-                // Necessário reabastecer o medicamento
-                console.log(`Necessário reabastecer: ${med.nomemedicamento}, Serviço: ${med.localidadeServico || 'Desconhecido'} (${med.tipoServico || 'Desconhecido'})`);
+                const message = `Necessário reabastecer: ${med.nomemedicamento}, Serviço: ${med.localidadeServico || 'Desconhecido'} (${med.tipoServico || 'Desconhecido'})`;
+                console.log(message);
+                response.push(message);
 
-                // Encontrar unidades com excesso de stock
                 const unidadesComExcessoQuery = `
                     SELECT servicoid, quantidadedisponivel
                     FROM servicosBD.Medicamento_Servico_Hospitalar
@@ -38,7 +36,6 @@ const balancearStock = async () => {
                 for (const unidade of unidadesComExcesso.rows) {
                     let excesso = unidade.quantidadedisponivel - med.quantidademinima;
                     if (excesso > 0) {
-                        // Transferir stock
                         const transferirQuery = `
                             UPDATE servicosBD.Medicamento_Servico_Hospitalar
                             SET quantidadedisponivel = quantidadedisponivel - $1
@@ -49,7 +46,6 @@ const balancearStock = async () => {
                         `;
                         await pool.query(transferirQuery, [excesso, med.medicamentoid, unidade.servicoid, med.servicoid]);
 
-                        // Verificar se ainda é necessário mais stock
                         const atualQuantidadeQuery = `
                             SELECT quantidadedisponivel
                             FROM servicosBD.Medicamento_Servico_Hospitalar
@@ -57,12 +53,11 @@ const balancearStock = async () => {
                         `;
                         const atualQuantidadeResult = await pool.query(atualQuantidadeQuery, [med.medicamentoid, med.servicoid]);
                         if (atualQuantidadeResult.rows[0].quantidadedisponivel >= med.quantidademinima) {
-                            break; // Quantidade mínima alcançada
+                            break;
                         }
                     }
                 }
 
-                // Enviar requisição se não foi possível reabastecer completamente e não existir requisição similar
                 const atualQuantidadeFinalQuery = `
                     SELECT quantidadedisponivel
                     FROM servicosBD.Medicamento_Servico_Hospitalar
@@ -91,31 +86,31 @@ const balancearStock = async () => {
                         const criarRequisicaoResult = await pool.query(criarRequisicaoQuery);
                         const novaRequisicaoID = criarRequisicaoResult.rows[0].requisicaoid;
 
-                        // Vincular medicamento à requisição
                         const vincularMedicamentoQuery = `
                             INSERT INTO servicosBD.Medicamento_Encomenda (medicamentoID, requisicaoID, quantidade)
                             VALUES ($1, $2, $3)
                         `;
                         await pool.query(vincularMedicamentoQuery, [med.medicamentoid, novaRequisicaoID, med.quantidademinima - atualQuantidadeFinalResult.rows[0].quantidadedisponivel]);
 
-                        console.log(`Requisição criada para ${med.nomemedicamento}, Serviço: ${med.localidadeServico || 'Desconhecido'} (${med.tipoServico || 'Desconhecido'})`);
+                        const requisicaoMessage = `Requisição criada para ${med.nomemedicamento}, Serviço: ${med.localidadeServico || 'Desconhecido'} (${med.tipoServico || 'Desconhecido'})`;
+                        console.log(requisicaoMessage);
+                        response.push(requisicaoMessage);
                     } else {
-                        console.log(`Requisição já existente para ${med.nomemedicamento}, Serviço: ${med.localidadeServico || 'Desconhecido'} (${med.tipoServico || 'Desconhecido'})`);
+                        const requisicaoExistenteMessage = `Requisição já existente para ${med.nomemedicamento}, Serviço: ${med.localidadeServico || 'Desconhecido'} (${med.tipoServico || 'Desconhecido'})`;
+                        console.log(requisicaoExistenteMessage);
+                        response.push(requisicaoExistenteMessage);
                     }
                 }
             }
         }
+        res.status(200).json(response);
     } catch (error) {
         console.error('Error ao balancear o stock:', error.message);
+        res.status(500).send('Error ao balancear o stock');
     }
 };
 
-// Executar balancearStock imediatamente na inicialização
-balancearStock();
+// Route to balance stock
+router.get('/balance', balancearStock);
 
-// Executar balancearStock a cada 5 minutos (300000 milissegundos)
-setInterval(balancearStock, 300000);
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+module.exports = router;

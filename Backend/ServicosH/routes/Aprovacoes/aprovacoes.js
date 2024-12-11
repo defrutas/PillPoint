@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getPool } = require('../db');
+const { getPool } = require('../../db'); // Updated path
 
 // Middleware para verificar se o usuário é administrador
 const verificarAdministrador = async (req, res, next) => {

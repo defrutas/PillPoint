@@ -1,12 +1,9 @@
 const express = require('express');
-const app = express();
-const { getPool } = require('./db');
-const PORT = process.env.PORT || 5000;
-
-app.use(express.json());
+const router = express.Router();
+const { getPool } = require('../../db'); // Updated path
 
 // Function to check database values
-const checkDatabase = async () => {
+const checkDatabase = async (req, res) => {
     try {
         const pool = getPool();
         const query = `
@@ -23,20 +20,18 @@ const checkDatabase = async () => {
             result.rows.forEach(row => {
                 console.log(`- Nome: ${row.nomemedicamento}, Descrição: ${row.descricao}, Quantidade Disponível: ${row.quantidadedisponivel}, Quantidade Mínima: ${row.quantidademinima}`);
             });
+            res.status(200).json(result.rows);
         } else {
             console.log('Todos os medicamentos estão acima da quantidade mínima.');
+            res.status(200).json({ message: 'Todos os medicamentos estão acima da quantidade mínima.' });
         }
     } catch (error) {
         console.error('Error checking database:', error.message);
+        res.status(500).send('Error checking database');
     }
 };
 
-// Run checkDatabase immediately on startup
-checkDatabase();
+// Route to check database values
+router.get('/check', checkDatabase);
 
-// Run checkDatabase every 5 minutes (300000 milliseconds)
-setInterval(checkDatabase, 60000);
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+module.exports = router;

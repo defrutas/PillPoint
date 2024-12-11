@@ -1,1 +1,0 @@
-O Batch executa a cada 5 minutos e verifica as unidades disponíveis consoante a quantidade mínima disponível, caso os valores mudem para abaixo do mínimo, é enviado um aviso.

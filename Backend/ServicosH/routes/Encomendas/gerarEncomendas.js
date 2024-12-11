@@ -1,12 +1,9 @@
 const express = require('express');
-const app = express();
-const { getPool } = require('./db');
-const PORT = process.env.PORT || 5000;
+const router = express.Router();
+const { getPool } = require('../../db'); // Updated path
 
-app.use(express.json());
-
-// Função para verificar e gerar encomendas
-const gerarEncomendas = async () => {
+// Function to generate orders
+const gerarEncomendas = async (req, res) => {
     try {
         const pool = getPool();
         const query = `
@@ -23,10 +20,8 @@ const gerarEncomendas = async () => {
 
         for (const med of medicamentos) {
             if (med.quantidadedisponivel < med.quantidademinima) {
-                // Necessário encomendar o medicamento
                 console.log(`Necessário encomendar: ${med.nomemedicamento}, Serviço: ${med.localidadeServico || 'Desconhecido'} (${med.tipoServico || 'Desconhecido'})`);
 
-                // Verificar se já existe uma encomenda pendente para este medicamento
                 const verificarEncomendaQuery = `
                     SELECT COUNT(*) AS count
                     FROM servicosBD.Encomenda
@@ -48,7 +43,6 @@ const gerarEncomendas = async () => {
                     const criarEncomendaResult = await pool.query(criarEncomendaQuery, [med.quantidademinima - med.quantidadedisponivel]);
                     const novaEncomendaID = criarEncomendaResult.rows[0].encomendaid;
 
-                    // Vincular medicamento à encomenda
                     const vincularMedicamentoQuery = `
                         INSERT INTO servicosBD.Medicamento_Encomenda (medicamentoID, encomendaID, quantidade)
                         VALUES ($1, $2, $3)
@@ -61,17 +55,14 @@ const gerarEncomendas = async () => {
                 }
             }
         }
+        res.status(200).send('Orders generated successfully');
     } catch (error) {
         console.error('Error ao gerar encomendas:', error.message);
+        res.status(500).send('Error ao gerar encomendas');
     }
 };
 
-// Executar gerarEncomendas imediatamente na inicialização
-gerarEncomendas();
+// Route to generate orders
+router.get('/generate', gerarEncomendas);
 
-// Executar gerarEncomendas a cada 5 minutos (300000 milissegundos)
-setInterval(gerarEncomendas, 300000);
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+module.exports = router;
