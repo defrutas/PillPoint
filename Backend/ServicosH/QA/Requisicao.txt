@@ -1,0 +1,14 @@
+URL: http://your_server_ip:5000/api/requisicoes/create
+Method: POST
+Headers:
+  Content-Type: application/json
+Body (raw JSON):
+{
+  "estadoID": 1,
+  "profissionalID": 1,
+  "adminID": 1,
+  "aprovadoPorAdministrador": false,
+  "requisicaoCompleta": false,
+  "dataRequisicao": "2024-12-11",
+  "dataEntrega": "2024-12-17"
+}

@@ -1,0 +1,4 @@
+URL: http://your_server_ip:5000/api/encomendas/todas
+Method: GET
+Headers:
+  Content-Type: application/json
