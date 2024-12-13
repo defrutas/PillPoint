@@ -1,0 +1,114 @@
+/* Wrapper for both the blue bar and the existing toolbar */
+.toolbar-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    position: fixed;
+    top: 5em; /* Adjust to match the height of the Navbar */
+    left: 13em; /* Adjust to match the width of the Sidebar */
+    width: calc(100% - 10em); /* Subtract Sidebar width */
+    z-index: 1; /* Ensure it's on top of other elements */
+}
+
+/* Blue Bar for Component Name */
+.component-name-bar {
+    background-color: #0F4C75; /* Blue background */
+    color: white;
+    text-align: left;
+    padding: 0.2em;
+    font-size: 18px;
+    z-index: 2; /* Stays above the toolbar */
+}
+
+/* Existing Toolbar styles */
+.toolbar {
+    background-color: #d1d5db; /* Light blue background */
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 20px; /* Padding for spacing */
+    border-bottom: 1px solid #d1d5db;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    height: 3em;
+}
+
+.toolbar-item {
+    display: flex;
+    align-items: center;
+    margin-right: 1rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.toolbar-search {
+    display: flex;
+    align-items: center;
+}
+
+.loupe-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+}
+
+.search-input {
+    font-size: 16px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    width: 200px;
+    background-color: #fff;
+    color: #333;
+    margin-left: 10px;
+}
+
+.search-input::placeholder {
+    color: #aaa;
+}
+
+.toolbar button {
+    background-color: #1a4568;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.toolbar-item i {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+}
+
+.toolbar-item:hover {
+    color: #a8c4e6;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 2rem;
+    left: 0;
+    background-color: white;
+    color: black;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    padding: 0.5rem;
+    display: none;
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu div {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+
+.dropdown-menu div:hover {
+    background-color: #f4f4f4;
+}

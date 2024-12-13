@@ -3,7 +3,7 @@ import '../../App.css';
 
 import Navbar from '../Navbar';
 import Sidebar from '../Sidebar';
-import '../Home.css'
+import './Home.css'
 
 function Home(){
     return(

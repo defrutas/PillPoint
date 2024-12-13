@@ -5,7 +5,7 @@ import './Sidebar.css'; // Import the CSS for the sidebar
 const Sidebar = () => {
   return (
     <div className="sidebar">
-      <Link to="/" className="sidebar-link">
+      <Link to="/home" className="sidebar-link">
         Página Inicial
       </Link>
       <Link to="/product" className="sidebar-link">
