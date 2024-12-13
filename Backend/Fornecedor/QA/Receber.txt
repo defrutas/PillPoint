@@ -1,0 +1,11 @@
+curl -X POST http://localhost:3000/api/receive-encomenda \
+-H "Content-Type: application/json" \
+-d '{
+    "encomendaid": 1,
+    "estadoid": 1,
+    "fornecedorid": 1,
+    "encomendacompleta": false,
+    "dataencomenda": "2024-01-15T00:00:00.000Z",
+    "dataentrega": null,
+    "quantidadeenviada": 100
+}'

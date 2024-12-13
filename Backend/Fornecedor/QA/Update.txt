@@ -1,0 +1,10 @@
+curl -X POST http://localhost:3000/api/update-encomenda \
+-H "Content-Type: application/json" \
+-d '{
+    "encomendaid": 1,
+    "estadoid": 2,
+    "fornecedorid": 1,
+    "dataentrega": "2024-01-20T00:00:00.000Z",
+    "quantidadeenviada": 120,
+    "updateUrl": "http://origin-backend-url/api/update"
+}'
