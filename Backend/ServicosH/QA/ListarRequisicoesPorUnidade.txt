@@ -1,0 +1,6 @@
+URL: http://your_server_ip:5000/api/requisicoes/list/{servicoID}
+Method: GET
+Headers:
+  Content-Type: application/json
+Path Parameters:
+  servicoID: 1

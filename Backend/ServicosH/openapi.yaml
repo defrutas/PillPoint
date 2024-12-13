@@ -1,0 +1,296 @@
+openapi: 3.0.0
+info:
+  title: Hospital Services API
+  version: 1.0.0
+  description: API for managing hospital services, including orders, requisitions, authentication, and stock balancing.
+paths:
+  /api/encomendas/create:
+    post:
+      summary: Create a new order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                estadoID:
+                  type: integer
+                adminID:
+                  type: integer
+                fornecedorID:
+                  type: integer
+                aprovadoPorAdministrador:
+                  type: boolean
+                encomendaCompleta:
+                  type: boolean
+                dataEncomenda:
+                  type: string
+                  format: date
+                dataEntrega:
+                  type: string
+                  format: date
+                quantidadeEnviada:
+                  type: integer
+                medicamentos:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      medicamentoID:
+                        type: integer
+                      quantidade:
+                        type: integer
+      responses:
+        '201':
+          description: Order created successfully
+        '400':
+          description: Bad request
+  /api/encomendas/pendentes-aprovacao:
+    get:
+      summary: List orders pending approval
+      responses:
+        '200':
+          description: A list of orders pending approval
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    encomendaID:
+                      type: integer
+                    estadoID:
+                      type: integer
+                    adminID:
+                      type: integer
+                    fornecedorID:
+                      type: integer
+                    aprovadoPorAdministrador:
+                      type: boolean
+                    encomendaCompleta:
+                      type: boolean
+                    dataEncomenda:
+                      type: string
+                      format: date
+                    dataEntrega:
+                      type: string
+                      format: date
+                    quantidadeEnviada:
+                      type: integer
+                    nomeProprio:
+                      type: string
+                    ultimoNome:
+                      type: string
+        '400':
+          description: Bad request
+  /api/encomendas/todas:
+    get:
+      summary: List all orders
+      responses:
+        '200':
+          description: A list of all orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    encomendaID:
+                      type: integer
+                    estadoID:
+                      type: integer
+                    adminID:
+                      type: integer
+                    fornecedorID:
+                      type: integer
+                    aprovadoPorAdministrador:
+                      type: boolean
+                    encomendaCompleta:
+                      type: boolean
+                    dataEncomenda:
+                      type: string
+                      format: date
+                    dataEntrega:
+                      type: string
+                      format: date
+                    quantidadeEnviada:
+                      type: integer
+                    nomeProprio:
+                      type: string
+                    ultimoNome:
+                      type: string
+                    nomeFornecedor:
+                      type: string
+        '400':
+          description: Bad request
+  /api/encomendas/generate:
+    get:
+      summary: Generate orders
+      responses:
+        '200':
+          description: Orders generated successfully
+        '500':
+          description: Internal server error
+  /api/requisicoes/create:
+    post:
+      summary: Create a new requisition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                estadoID:
+                  type: integer
+                profissionalID:
+                  type: integer
+                adminID:
+                  type: integer
+                aprovadoPorAdministrador:
+                  type: boolean
+                requisicaoCompleta:
+                  type: boolean
+                dataRequisicao:
+                  type: string
+                  format: date
+                dataEntrega:
+                  type: string
+                  format: date
+      responses:
+        '201':
+          description: Requisition created successfully
+        '400':
+          description: Bad request
+  /api/requisicoes/list/{servicoID}:
+    get:
+      summary: List all requisitions for a health unit
+      parameters:
+        - in: path
+          name: servicoID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of requisitions for the specified health unit
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    requisicaoID:
+                      type: integer
+                    estadoID:
+                      type: integer
+                    profissionalID:
+                      type: integer
+                    adminID:
+                      type: integer
+                    aprovadoPorAdministrador:
+                      type: boolean
+                    requisicaoCompleta:
+                      type: boolean
+                    dataRequisicao:
+                      type: string
+                      format: date
+                    dataEntrega:
+                      type: string
+                      format: date
+                    nomeProprio:
+                      type: string
+                    ultimoNome:
+                      type: string
+        '400':
+          description: Bad request
+  /api/aprovacoes/aprovar:
+    post:
+      summary: Approve orders (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                encomendaID:
+                  type: integer
+      responses:
+        '200':
+          description: Order approved successfully
+        '400':
+          description: Bad request
+        '403':
+          description: Access denied
+  /api/auth/login:
+    post:
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '400':
+          description: Invalid credentials
+  /api/balancearStock/balance:
+    get:
+      summary: Balance stock
+      responses:
+        '200':
+          description: Stock balanced successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '500':
+          description: Internal server error
+  /api/checkDatabase/check:
+    get:
+      summary: Check database values
+      responses:
+        '200':
+          description: Database values checked successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    medicamentoid:
+                      type: integer
+                    servicoid:
+                      type: integer
+                    quantidadedisponivel:
+                      type: integer
+                    quantidademinima:
+                      type: integer
+                    nomemedicamento:
+                      type: string
+                    descricao:
+                      type: string
+        '500':
+          description: Internal server error
