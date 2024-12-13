@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
     "cra-template": "1.2.0",
     "frontend": "file:",
     "jsonwebtoken": "^9.0.2",
