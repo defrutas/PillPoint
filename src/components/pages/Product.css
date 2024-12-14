@@ -1,0 +1,93 @@
+/* Product.css */
+
+/* Ensure the content takes up space to the right of the sidebar */
+.product-page {
+  margin-left: 250px;  /* Adjust this if your sidebar is a different width */
+  padding: 20px;
+  width: calc(100% - 250px);  /* Ensure it takes up the remaining space */
+  background-color: #f8f8f8;
+  box-sizing: border-box;
+  overflow-y: auto; /* Allow scrolling if content overflows */
+}
+
+/* Optional: If you want to add a bit of spacing between the content and the left edge */
+.content {
+  margin-left: 20px;
+}
+
+/* Optional: Adjust list items for better visual structure */
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 20px;
+}
+
+h2 {
+  margin-top: 0;
+  font-size: 1.5em;
+}
+
+strong {
+  font-weight: bold;
+}
+
+/* Optional: Add some styling for better visual hierarchy */
+hr {
+  border: 1px solid #ddd;
+  margin-top: 10px;
+}
+
+/* Styling for product page specific content (Optional) */
+.product-description {
+  font-size: 1em;
+  line-height: 1.6;
+  margin-top: 10px;
+  color: #333;
+}
+
+.product-price {
+  font-size: 1.2em;
+  color: #e60000;
+  font-weight: bold;
+}
+
+.product-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Optional: Make buttons stand out */
+.button {
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive adjustments (Optional) */
+@media screen and (max-width: 768px) {
+  .product-page {
+    margin-left: 0;  /* Remove left margin on smaller screens */
+    width: 100%;  /* Full width on smaller screens */
+  }
+
+  .content {
+    margin-left: 0;
+  }
+
+  .button {
+    width: 100%;  /* Full width for buttons on mobile */
+  }
+}

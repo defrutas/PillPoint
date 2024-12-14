@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import Toolbar from '../Toolbar';
+// import Toolbar from '../Toolbar';  // Commenting out the Toolbar import
+
+import './Product.css';  // Import the CSS file
 
 const Product = () => {
   const [medicamentos, setMedicamentos] = useState([]);
@@ -26,7 +28,7 @@ const Product = () => {
 
   return (
     <div className="product-page">
-      <Toolbar name="Requisições"/>
+      {/* Remove the <Toolbar /> reference completely */}
       <div className="content">
         {error && <p>{error}</p>} {/* Show error if any */}
         <h2>Medicamentos Abaixo da Quantidade Mínima</h2>
