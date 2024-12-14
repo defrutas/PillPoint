@@ -1,0 +1,25 @@
+/* src/components/pages/Encomendas.css */
+
+.encomendas {
+  padding: 20px;
+  background-color: #f8f8f8;
+  box-sizing: border-box;
+}
+
+h2 {
+  font-size: 1.5em;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 20px;
+}
+
+hr {
+  border: 1px solid #ddd;
+  margin-top: 10px;
+}
