@@ -1,93 +1,78 @@
-/* Product.css */
-
 /* Ensure the content takes up space to the right of the sidebar */
 .product-page {
-  margin-left: 250px;  /* Adjust this if your sidebar is a different width */
-  padding: 20px;
-  width: calc(100% - 250px);  /* Ensure it takes up the remaining space */
+  margin-left: 11em;
+  padding: 1em;
   background-color: #f8f8f8;
   box-sizing: border-box;
-  overflow-y: auto; /* Allow scrolling if content overflows */
+  overflow-y: auto;
 }
 
-/* Optional: If you want to add a bit of spacing between the content and the left edge */
 .content {
-  margin-left: 20px;
+  padding-top: 9em;
 }
 
-/* Optional: Adjust list items for better visual structure */
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  margin-bottom: 20px;
-}
-
-h2 {
-  margin-top: 0;
-  font-size: 1.5em;
-}
-
-strong {
-  font-weight: bold;
-}
-
-/* Optional: Add some styling for better visual hierarchy */
-hr {
+/* Table Container */
+.table-container {
+  width: 108em;
+  display: flex;
+  flex-direction: column;
   border: 1px solid #ddd;
-  margin-top: 10px;
-}
-
-/* Styling for product page specific content (Optional) */
-.product-description {
-  font-size: 1em;
-  line-height: 1.6;
-  margin-top: 10px;
-  color: #333;
-}
-
-.product-price {
-  font-size: 1.2em;
-  color: #e60000;
-  font-weight: bold;
-}
-
-.product-image {
-  max-width: 100%;
-  height: auto;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
-/* Optional: Make buttons stand out */
-.button {
-  padding: 10px 15px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+/* Table Header */
+.table-header {
+  display: flex;
+  background-color: #d3d3d3;
+  font-weight: bold;
+  padding: 0.3em
 }
 
-.button:hover {
-  background-color: #0056b3;
+/* Table Rows */
+.table-row {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  padding: 10px 0;
 }
 
-/* Responsive adjustments (Optional) */
-@media screen and (max-width: 768px) {
-  .product-page {
-    margin-left: 0;  /* Remove left margin on smaller screens */
-    width: 100%;  /* Full width on smaller screens */
+.table-row:nth-child(even) {
+  background-color: #f9f9f9; /* Alternate row color */
+}
+
+/* Columns */
+.column-id {
+  width: 4em;
+  text-align: center;
+}
+
+.column-name,
+.column-description {
+  width: 5em;
+  flex: 2;
+  text-align: left;
+}
+
+.column-available,
+.column-minimum {
+  flex: 1;
+  text-align: left;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  .table-header, .table-row {
+    flex-direction: column;
   }
 
-  .content {
-    margin-left: 0;
+  .column {
+    text-align: left;
+    padding: 5px 0;
   }
 
-  .button {
-    width: 100%;  /* Full width for buttons on mobile */
+  .column::before {
+    font-weight: bold;
+    display: inline-block;
+    margin-right: 5px;
   }
 }

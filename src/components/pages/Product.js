@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-// import Toolbar from '../Toolbar';  // Commenting out the Toolbar import
-
-import './Product.css';  // Import the CSS file
+import Toolbar from '../Toolbar'; // Toolbar component
+import './Product.css'; // Import the CSS file
 
 const Product = () => {
   const [medicamentos, setMedicamentos] = useState([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Fetch data when the component mounts
     const fetchMedicamentos = async () => {
       try {
         const response = await fetch('http://4.211.87.132:5000/api/checkDatabase/check');
@@ -24,29 +22,39 @@ const Product = () => {
     };
 
     fetchMedicamentos();
-  }, []); // Empty dependency array to run this effect only once, when the component mounts
+  }, []);
 
   return (
     <div className="product-page">
-      {/* Remove the <Toolbar /> reference completely */}
+      <Toolbar name="Medicamentos" />
       <div className="content">
-        {error && <p>{error}</p>} {/* Show error if any */}
-        <h2>Medicamentos Abaixo da Quantidade Mínima</h2>
-        <ul>
-          {medicamentos.length > 0 ? (
-            medicamentos.map((medicamento, index) => (
-              <li key={index}>
-                <strong>Nome:</strong> {medicamento.nomemedicamento} <br />
-                <strong>Descrição:</strong> {medicamento.descricao} <br />
-                <strong>Quantidade Disponível:</strong> {medicamento.quantidadedisponivel} <br />
-                <strong>Quantidade Mínima:</strong> {medicamento.quantidademinima} <br />
-                <hr />
-              </li>
-            ))
-          ) : (
-            <p>Não há medicamentos abaixo da quantidade mínima.</p>
-          )}
-        </ul>
+        {error && <p>{error}</p>}
+
+        {medicamentos.length > 0 ? (
+          <div className="table-container">
+            {/* Table Header */}
+            <div className="table-header">
+              <div className="column-id">#</div>
+              <div className="column-name">Nome</div>
+              <div className="column-description">Descrição</div>
+              <div className="column-available">Quantidade Disponível</div>
+              <div className="column-minimum">Quantidade Mínima</div>
+            </div>
+
+            {/* Table Rows */}
+            {medicamentos.map((medicamento, index) => (
+              <div className="table-row" key={index}>
+                <div className="column-id">{medicamento.medicamentoid}</div>
+                <div className="column-name">{medicamento.nomemedicamento}</div>
+                <div className="column-description">{medicamento.descricao}</div>
+                <div className="column-available">{medicamento.quantidadedisponivel}</div>
+                <div className="column-minimum">{medicamento.quantidademinima}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>Não há medicamentos abaixo da quantidade mínima.</p>
+        )}
       </div>
     </div>
   );
