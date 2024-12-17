@@ -67,7 +67,10 @@ const LoginPage = () => {
 
 
   return (
-    <div className="login-container">
+    <div
+    className="login-container"
+    style={{ backgroundImage: "url('/images/pillpoint.webp')" }}
+    >
       <div className="login-card">
         <div className="login-title">
           <img src="/images/logo.png" alt="Logo" className="h-8 w-8 mr-2" /> PillPoint

@@ -3,7 +3,8 @@
   padding-left: 10em;
   align-items: center;
   min-height: 100vh;
-  background-color: #BBE1FA;
+  background-size: cover;
+  background-position: center;
 }
 
 .login-card {
