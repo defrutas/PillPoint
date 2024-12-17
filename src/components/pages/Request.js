@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import Toolbar from '../Toolbar'; // Toolbar component
+
 import './Encomenda.css';
 
 const Request = () => {
@@ -60,8 +62,9 @@ const Request = () => {
   };
 
   return (
-    <div className="Requests">
-      <div className="content">
+    <div className="requests-page">
+      <Toolbar name="Requisicoes" />
+      <div className="requests-content">
         {error && <p>{error}</p>} {/* Show error if any */}
         <h2>Lista de Requisições</h2>
         <ul>

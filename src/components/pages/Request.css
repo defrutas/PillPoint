@@ -1,23 +1,13 @@
-/* src/components/pages/Request.css */
-.request-container {
-  padding: 20px;
+.requests-page {
+  padding: 2rem;
   background-color: #f8f8f8;
 }
 
-h2 {
-  font-size: 1.5em;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  margin-bottom: 20px;
-}
-
-hr {
+.requests-content {
+  width: 108em;
+  display: flex;
+  flex-direction: column;
   border: 1px solid #ddd;
-  margin-top: 10px;
+  border-radius: 8px;
+  overflow: hidden;
 }
