@@ -14,12 +14,12 @@
 
 /* Table Container */
 .table-container {
-  width: 108em;
+  width: 107em;
   display: flex;
   flex-direction: column;
   border: 1px solid #ddd;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: hidden;
 }
 
 /* Table Header */
