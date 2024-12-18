@@ -27,28 +27,27 @@ const Product = () => {
   return (
     <div className="product-page">
       <Toolbar name="Medicamentos" />
-      <div className="content">
+      <div className="product-content">
         {error && <p>{error}</p>}
-
         {medicamentos.length > 0 ? (
-          <div className="table-container">
+          <div className="product-table-container">
             {/* Table Header */}
-            <div className="table-header">
-              <div className="column-id">#</div>
-              <div className="column-name">Nome</div>
-              <div className="column-description">Descrição</div>
-              <div className="column-available">Quantidade Disponível</div>
-              <div className="column-minimum">Quantidade Mínima</div>
+            <div className="product-table-header">
+              <div className="column">#</div>
+              <div className="column">Nome</div>
+              <div className="column">Descrição</div>
+              <div className="column">Quantidade Disponível</div>
+              <div className="column">Quantidade Mínima</div>
             </div>
 
             {/* Table Rows */}
             {medicamentos.map((medicamento, index) => (
-              <div className="table-row" key={index}>
-                <div className="column-id">{medicamento.medicamentoid}</div>
-                <div className="column-name">{medicamento.nomemedicamento}</div>
-                <div className="column-description">{medicamento.descricao}</div>
-                <div className="column-available">{medicamento.quantidadedisponivel}</div>
-                <div className="column-minimum">{medicamento.quantidademinima}</div>
+              <div className="product-table-row" key={index}>
+                <div className="column">{medicamento.medicamentoid}</div>
+                <div className="column">{medicamento.nomemedicamento}</div>
+                <div className="column">{medicamento.descricao}</div>
+                <div className="column">{medicamento.quantidadedisponivel}</div>
+                <div className="column">{medicamento.quantidademinima}</div>
               </div>
             ))}
           </div>

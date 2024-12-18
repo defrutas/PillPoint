@@ -1,0 +1,170 @@
+/* Ensure the content takes up space to the right of the sidebar */
+.encomendas-page {
+  margin-left: 11em;
+  padding: 1em;
+  background-color: #f8f8f8;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.encomendas-content {
+  padding-top: 9em;
+  margin-left: 1em;
+}
+
+/* Table Container */
+.encomendas-table-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Table Header */
+.encomendas-table-header {
+  display: flex;
+  font-weight: bold;
+  background-color: #d3d3d3;
+  padding: 0.5em;
+  text-align: left;
+  font-size: 0.9em;
+}
+
+/* Table Rows */
+.encomendas-table-row {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  padding: 0.5em 0.3em;
+  align-items: center;
+}
+
+.encomendas-table-row:nth-child(even) {
+  background-color: #f9f9f9; /* Alternate row color */
+}
+
+.encomendas-table-row:hover {
+  background-color: #f0f0f0; /* Hover effect */
+  transition: background-color 0.3s ease;
+}
+
+/* Columns */
+.column-id {
+  flex: 0.5; /* Smaller width for Order ID */
+  text-align: left;
+  padding: 0 0.5em;
+}
+
+.column-client {
+  flex: 1.5; /* Larger width for Client Name */
+}
+
+.column-supplier {
+  flex: 1.5; /* Larger width for Supplier Name */
+}
+
+.column-date,
+.column-delivery-date {
+  flex: 1; /* Equal width for Dates */
+  text-align: center;
+}
+
+.column-quantity {
+  flex: 1; /* Equal width for Quantity Sent */
+  text-align: center;
+}
+
+.column-complete,
+.column-admin {
+  flex: 1; /* Equal width for Admin and Complete */
+  text-align: center;
+}
+
+.column-status {
+  flex: 1; /* Equal width for Status */
+  text-align: center;
+}
+
+/* Status Color Coding */
+.status-approved {
+  background-color: rgba(0, 128, 0, 0.61);
+  color: white;
+  font-weight: bold;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+}
+
+.status-pending {
+  background-color: yellow;
+  color: black;
+  font-weight: bold;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+}
+
+.status-refused {
+  background-color: red;
+  color: white;
+  font-weight: bold;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  .encomendas-table-header,
+  .encomendas-table-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .column-id,
+  .column-client,
+  .column-supplier,
+  .column-date,
+  .column-quantity,
+  .column-complete,
+  .column-admin,
+  .column-delivery-date,
+  .column-status {
+    width: 100%;
+    padding: 5px 0;
+  }
+
+  .column-id::before {
+    content: "ID: ";
+  }
+
+  .column-client::before {
+    content: "Client: ";
+  }
+
+  .column-supplier::before {
+    content: "Supplier: ";
+  }
+
+  .column-date::before {
+    content: "Order Date: ";
+  }
+
+  .column-quantity::before {
+    content: "Quantity: ";
+  }
+
+  .column-complete::before {
+    content: "Complete: ";
+  }
+
+  .column-admin::before {
+    content: "Admin Approved: ";
+  }
+
+  .column-delivery-date::before {
+    content: "Delivery Date: ";
+  }
+
+  .column-status::before {
+    content: "Status: ";
+  }
+}
