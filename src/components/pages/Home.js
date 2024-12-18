@@ -13,26 +13,37 @@ function Home() {
 
   // Fetch data from backend when component mounts
   useEffect(() => {
+    const baseURL = 'http://4.211.87.132:5000'; // Backend IP address
+
     // Fetch Medicamentos (Stock Global) data
-    fetch('/api/medicamentos') // Replace with correct API endpoint for medicamentos
-      .then(response => response.json())
+    fetch(`${baseURL}/api/medicamentos`)
+      .then(response => {
+        if (!response.ok) {
+          // If the response is not OK (e.g., 404 or 500 error), throw an error
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => setMedicamentos(data))
-      .catch(error => console.error('Error fetching medicamentos:', error));
+      .catch(error => {
+        console.error('Error fetching medicamentos:', error);
+        // Handle the error gracefully (e.g., show a message to the user)
+      });
 
     // Fetch Alertas (Stock Alerts) data
-    fetch('/api/alertas') // This should match the backend route where `checkDatabase` is defined
+    fetch(`${baseURL}/api/alertas`)
       .then(response => response.json())
       .then(data => setAlertas(data))
       .catch(error => console.error('Error fetching alertas:', error));
 
     // Fetch Encomendas (Orders Pending Approval) data
-    fetch('/api/encomendas/pendentes-aprovacao') // Adjust to the correct endpoint for orders
+    fetch(`${baseURL}/api/encomendas/pendentes-aprovacao`)
       .then(response => response.json())
       .then(data => setEncomendas(data))
       .catch(error => console.error('Error fetching encomendas:', error));
 
     // Fetch Requisições (Requests Pending Approval) data
-    fetch('/api/requisicoes/pendentes-aprovacao') // Adjust to the correct endpoint for requests
+    fetch(`${baseURL}/api/requisicoes/pendentes-aprovacao`)
       .then(response => response.json())
       .then(data => setRequisicoes(data))
       .catch(error => console.error('Error fetching requisicoes:', error));
