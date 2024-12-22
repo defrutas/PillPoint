@@ -18,6 +18,9 @@ const Sidebar = () => {
       <Link to="/home" className="sidebar-link">
         Página Inicial
       </Link>
+      <Link to="/services" className="sidebar-link">
+        Serviços de Saúde
+      </Link>
       <Link to="/product" className="sidebar-link">
         Medicamentos
       </Link>
