@@ -1,8 +1,18 @@
-import React from 'react';
-import { Link } from 'react-router-dom'; // Using react-router-dom for routing
-import './Sidebar.css'; // Import the CSS for the sidebar
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import './Sidebar.css';
 
 const Sidebar = () => {
+  const [alertCount, setAlertCount] = useState(0);
+
+  useEffect(() => {
+    const baseURL = "http://4.211.87.132:5000";
+    fetch(`${baseURL}/api/checkDatabase/check`)
+      .then((response) => response.json())
+      .then((data) => setAlertCount(data.length))
+      .catch((error) => console.error("Error fetching alert count:", error));
+  }, []);
+
   return (
     <div className="sidebar">
       <Link to="/home" className="sidebar-link">
@@ -19,6 +29,9 @@ const Sidebar = () => {
       </Link>
       <Link to="/alerts" className="sidebar-link">
         Alertas
+        {alertCount > 0 && (
+          <span className="alert-badge">{alertCount}</span>
+        )}
       </Link>
       <Link to="/contacts" className="sidebar-link">
         Contactos
