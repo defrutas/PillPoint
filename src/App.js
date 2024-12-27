@@ -9,6 +9,7 @@ import Product from './components/pages/Product';
 import AdminTesting from './components/pages/TESTING'; // Ensure this import is there
 import Request from './components/pages/Request';  // Import Request component
 import Encomendas from './components/pages/Encomendas'; // Import Encomendas component
+import Alerts from './components/pages/Alerts'; // Import Alerts component
 
 function App() {
   return (
@@ -31,8 +32,9 @@ function MainContent() {
         <Route path="/home" element={<Home />} />
         <Route path="/product" element={<Product />} />
         <Route path="/TESTING" element={<AdminTesting />} />
-        <Route path="/requests" element={<Request />} /> {/* Add this route for Requests */}
-        <Route path="/encomendas" element={<Encomendas />} /> {/* Add this route for Encomendas */}
+        <Route path="/requests" element={<Request />} />
+        <Route path="/encomendas" element={<Encomendas />} />
+        <Route path="/alerts" element={<Alerts />} />
       </Routes>
     </>
   );

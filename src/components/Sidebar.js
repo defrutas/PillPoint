@@ -6,11 +6,24 @@ const Sidebar = () => {
   const [alertCount, setAlertCount] = useState(0);
 
   useEffect(() => {
-    const baseURL = "http://4.211.87.132:5000";
-    fetch(`${baseURL}/api/checkDatabase/check`)
-      .then((response) => response.json())
-      .then((data) => setAlertCount(data.length))
-      .catch((error) => console.error("Error fetching alert count:", error));
+    const fetchAlertCounts = async () => {
+      try {
+        const response = await fetch('http://4.211.87.132:5000/api/alerts');
+        if (!response.ok) {
+          throw new Error('Failed to fetch alert data');
+        }
+        const data = await response.json();
+        const totalCount =
+          (data.medications?.length || 0) +
+          (data.orders?.length || 0) +
+          (data.requests?.length || 0);
+        setAlertCount(totalCount);
+      } catch (error) {
+        console.error('Error fetching alert count:', error);
+      }
+    };
+
+    fetchAlertCounts();
   }, []);
 
   return (

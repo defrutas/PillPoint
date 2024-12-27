@@ -6,37 +6,40 @@ import "./Home.css";
 import { FaPills, FaBell, FaBox, FaClipboardList } from "react-icons/fa";
 
 function Home() {
-  const [medicamentos, setMedicamentos] = useState([]);
-  const [alertas, setAlertas] = useState([]);
-  const [encomendas, setEncomendas] = useState([]);
-  const [requisicoes, setRequisicoes] = useState([]);
+  const [counts, setCounts] = useState({
+    medicamentos: 0,
+    alertas: 0,
+    encomendas: 0,
+    requisicoes: 0,
+  });
 
   useEffect(() => {
-    const baseURL = "http://4.211.87.132:5000";
+    const fetchCounts = async () => {
+      try {
+        const response = await fetch("http://4.211.87.132:5000/api/alerts");
+        if (!response.ok) {
+          throw new Error("Failed to fetch data");
+        }
+        const data = await response.json();
 
-    fetch(`${baseURL}/api/checkDatabase/check`)
-      .then((response) => response.json())
-      .then((data) => setMedicamentos(data))
-      .catch((error) => console.error("Error fetching medicamentos:", error));
+        setCounts({
+          medicamentos: data.medications?.length || 0,
+          alertas:
+            (data.medications?.length || 0) +
+            (data.orders?.length || 0) +
+            (data.requests?.length || 0),
+          encomendas: data.orders?.length || 0,
+          requisicoes: data.requests?.length || 0,
+        });
+      } catch (error) {
+        console.error("Error fetching counts:", error);
+      }
+    };
 
-    fetch(`${baseURL}/api/checkDatabase/check`)
-      .then((response) => response.json())
-      .then((data) => setAlertas(data))
-      .catch((error) => console.error("Error fetching alertas:", error));
-
-    fetch(`${baseURL}/api/encomendas/pendentes-aprovacao`)
-      .then((response) => response.json())
-      .then((data) => setEncomendas(data))
-      .catch((error) => console.error("Error fetching encomendas:", error));
-
-    fetch(`${baseURL}/api/requisicoes/pendentes-aprovacao`)
-      .then((response) => response.json())
-      .then((data) => setRequisicoes(data))
-      .catch((error) => console.error("Error fetching requisicoes:", error));
+    fetchCounts();
   }, []);
 
   const handleCardClick = (path) => {
-    // Placeholder function to navigate
     window.location.href = path;
   };
 
@@ -55,8 +58,8 @@ function Home() {
               <FaPills className="card-icon" />
               <h2 className="card-title">Medicamentos</h2>
               <p className="card-description">
-                {medicamentos.length > 0
-                  ? `${medicamentos.length} Medicamentos disponíveis`
+                {counts.medicamentos > 0
+                  ? `${counts.medicamentos} Medicamentos disponíveis`
                   : "Nenhum medicamento encontrado."}
               </p>
             </div>
@@ -69,8 +72,8 @@ function Home() {
               <FaBell className="card-icon" />
               <h2 className="card-title">Alertas</h2>
               <p className="card-description">
-                {alertas.length > 0
-                  ? `${alertas.length} Alertas por resolver!`
+                {counts.alertas > 0
+                  ? `${counts.alertas} Alertas por resolver!`
                   : "Nenhum alerta de stock abaixo do valor mínimo."}
               </p>
             </div>
@@ -83,8 +86,8 @@ function Home() {
               <FaBox className="card-icon" />
               <h2 className="card-title">Encomendas</h2>
               <p className="card-description">
-                {encomendas.length > 0
-                  ? `${encomendas.length} Encomendas pendentes`
+                {counts.encomendas > 0
+                  ? `${counts.encomendas} Encomendas pendentes`
                   : "Nenhuma encomenda pendente de aprovação."}
               </p>
             </div>
@@ -97,8 +100,8 @@ function Home() {
               <FaClipboardList className="card-icon" />
               <h2 className="card-title">Requisições</h2>
               <p className="card-description">
-                {requisicoes.length > 0
-                  ? `${requisicoes.length} Requisições pendentes`
+                {counts.requisicoes > 0
+                  ? `${counts.requisicoes} Requisições pendentes`
                   : "Nenhuma requisição pendente de aprovação."}
               </p>
             </div>
