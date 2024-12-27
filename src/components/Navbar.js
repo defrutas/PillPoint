@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { User } from 'lucide-react'; // Ensure lucide-react is installed for icons
-import './Navbar.css';  // Assuming it's in the same directory
+import { User, LogOut } from 'lucide-react'; // Ensure lucide-react is installed
+import './Navbar.css';
 
 function Navbar() {
   const [userName, setUserName] = useState('');
@@ -14,6 +14,15 @@ function Navbar() {
     }
   }, []);
 
+  const handleLogout = () => {
+    // Clear user data from local storage
+    localStorage.removeItem('firstName');
+    localStorage.removeItem('lastName');
+    localStorage.removeItem('authToken'); // Assuming you have an auth token saved
+
+    // Redirect to the login page
+    window.location.href = '/';
+  };
 
   return (
     <nav className="navbar">
@@ -23,6 +32,7 @@ function Navbar() {
       <div className="user-info">
         <User className="user-icon" />
         <span className="user-name">{userName || 'Guest'}</span>
+        <LogOut className="logout-icon" onClick={handleLogout} title="Log Out" />
       </div>
     </nav>
   );

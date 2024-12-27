@@ -40,7 +40,7 @@
 
 			  // Navigate based on user role
 			  if (decoded.isAdmin) {
-				navigate('/admin'); // Adjust route as necessary
+				navigate('/home'); // Adjust route as necessary
 			  } else {
 				navigate('/home');
 			  }

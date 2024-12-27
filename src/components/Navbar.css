@@ -29,6 +29,7 @@
   border-radius: 9999px; 
   display: flex;
   align-items: center;
+  gap: 0.5rem; /* Adjust spacing between elements */
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -40,4 +41,17 @@
 /* User name */
 .user-name {
   color: #F7EEDD;
+  font-size: 1rem;
+}
+
+/* Logout icon */
+.logout-icon {
+  color: #F7EEDD; /* Same color as the user icon and name */
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.logout-icon:hover {
+  transform: scale(1.1); /* Slight zoom effect on hover */
+  color: #FFD700; /* Add a distinct hover color for visual feedback */
 }
