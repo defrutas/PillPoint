@@ -57,20 +57,11 @@
   word-wrap: break-word;
 }
 
-.column-id {
-  flex: 0.5; /* Smaller width for ID */
-  text-align: center;
-}
-
 .column-professional,
 .column-date-requested,
 .column-approved,
 .column-delivery-date {
   flex: 1;
-}
-
-.column-approved {
-  text-align: center;
 }
 
 /* Responsive Table */

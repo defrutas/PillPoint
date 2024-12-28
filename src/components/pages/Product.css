@@ -41,25 +41,6 @@
   background-color: #f9f9f9; /* Alternate row color */
 }
 
-/* Columns */
-.column-id {
-  width: 4em;
-  text-align: center;
-}
-
-.column-name,
-.column-description {
-  width: 5em;
-  flex: 2;
-  text-align: left;
-}
-
-.column-available,
-.column-minimum {
-  flex: 1;
-  text-align: left;
-}
-
 /* Responsive Table */
 @media (max-width: 768px) {
   .table-header, .table-row {

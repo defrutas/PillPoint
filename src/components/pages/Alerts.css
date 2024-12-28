@@ -33,31 +33,74 @@
     padding: 10px 0;
   }
   
+  .alerts-table-container-request {
+    width: 106em;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .alerts-table-header-request {
+    display: flex;
+    background-color: #d3d3d3;
+    font-weight: bold;
+    padding: 0.5em;
+    text-align: left;
+    font-size: 0.9em;
+  }
+  
+  .alerts-table-row-request {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+  }
+
   .alerts-table-row:nth-child(even) {
     background-color: #f9f9f9; /* Alternate row color */
   }
   
   .column-id {
-    width: 4em;
-    text-align: center;
+    width: 4rem;
+    text-align: left;
+    padding-left: 1em;
   }
   
   .column-name,
   .column-description {
-    width: 5em;
-    flex: 2;
+    width: 2em;
+    flex: content;
     text-align: left;
   }
   
   .column-available,
   .column-minimum {
     flex: 1;
+  }
+
+  .column-action{
+    width: 2em;
+    flex: content;
     text-align: left;
   }
   
   .error-message {
     color: red;
     font-weight: bold;
+  }
+
+  .confirm-button {
+    padding: 5px 5px;
+    background-color: #0F4C75;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .confirm-button:hover {
+    background-color: #0F4C75;
   }
   
   @media (max-width: 768px) {
