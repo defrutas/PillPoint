@@ -2,16 +2,41 @@ import React, { useState, useEffect } from "react";
 import Toolbar from "../Toolbar"; // Toolbar component
 import "./Alerts.css"; // Import the CSS file
 
-const handleConfirmRequest = (id) => {
-  console.log(`Request ${id} confirmed.`);
-  // METE AQUI A CENA PARA CONFIRMAR A REQUISICAO
-};
-
 const Alerts = () => {
   const [medications, setMedications] = useState([]);
   const [orders, setOrders] = useState([]);
   const [requests, setRequests] = useState([]);
   const [error, setError] = useState("");
+
+  const handleConfirmRequest = async (id) => {
+    try {
+      // Make an API call to update the request in the database
+      const response = await fetch(`http://4.211.87.132:5000/api/requests/${id}/confirm`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ aprovadoporadministrador: true }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to confirm request in the database.");
+      }
+  
+      // Update the local state after the database is successfully updated
+      setRequests((prevRequests) =>
+        prevRequests.map((request) =>
+          request.requisicaoid === id
+            ? { ...request, aprovadoporadministrador: true }
+            : request
+        )
+      );
+  
+      console.log(`Request ${id} confirmed and updated in the database.`);
+    } catch (error) {
+      console.error("Error confirming request:", error);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
