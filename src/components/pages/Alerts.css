@@ -86,6 +86,22 @@
   font-weight: bold;
 }
 
+/* Create Order Button */
+.create-order-button {
+  padding: 5px 10px;
+  background-color: #0f4c75; /* Same as confirm button */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  margin-left: 0.5em; /* Add spacing between buttons if needed */
+}
+
+.create-order-button:hover {
+  background-color: #3282b8; /* Same hover effect */
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .alerts-table-header,

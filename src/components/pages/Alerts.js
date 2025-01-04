@@ -70,6 +70,32 @@ const Alerts = () => {
     }
   };
 
+  const handleCreateOrder = async (medicationId) => {
+    try {
+      const response = await fetch(
+        `http://4.211.87.132:5000/api/orders/create`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ medicamentoid: medicationId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to create a new order.");
+      }
+
+      const newOrder = await response.json();
+
+      setOrders((prevOrders) => [...prevOrders, newOrder]);
+      console.log(`Order created for medication ID ${medicationId}.`);
+    } catch (error) {
+      console.error("Error creating new order:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -110,6 +136,7 @@ const Alerts = () => {
                 <div className="column-description">Descricao</div>
                 <div className="column-available">Disponivel</div>
                 <div className="column-minimum">Minimo</div>
+                <div className="column-action">Ação</div>
               </div>
               {medications.map((medication) => (
                 <div
@@ -128,6 +155,16 @@ const Alerts = () => {
                   </div>
                   <div className="column-minimum">
                     {medication.quantidademinima}
+                  </div>
+                  <div className="column-action">
+                    <button
+                      className="create-order-button"
+                      onClick={() =>
+                        handleCreateOrder(medication.medicamentoid)
+                      }
+                    >
+                      Criar Encomenda
+                    </button>
                   </div>
                 </div>
               ))}
@@ -176,9 +213,11 @@ const Alerts = () => {
                     {order.quantidadeenviada}
                   </div>
                   <div className="column-action">
-                  <button
+                    <button
                       className="confirm-button"
-                      onClick={() => handleConfirmOrder(order.aprovadoporadministrador)}
+                      onClick={() =>
+                        handleConfirmOrder(order.aprovadoporadministrador)
+                      }
                     >
                       Aprovar
                     </button>
