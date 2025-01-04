@@ -10,20 +10,21 @@ const Alerts = () => {
 
   const handleConfirmRequest = async (id) => {
     try {
-      // Make an API call to update the request in the database
-      const response = await fetch(`http://4.211.87.132:5000/api/requests/${id}/confirm`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ aprovadoporadministrador: true }),
-      });
-  
+      const response = await fetch(
+        `http://4.211.87.132:5000/api/requests/${id}/confirm`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ aprovadoporadministrador: true }),
+        }
+      );
+
       if (!response.ok) {
         throw new Error("Failed to confirm request in the database.");
       }
-  
-      // Update the local state after the database is successfully updated
+
       setRequests((prevRequests) =>
         prevRequests.map((request) =>
           request.requisicaoid === id
@@ -31,10 +32,41 @@ const Alerts = () => {
             : request
         )
       );
-  
+
       console.log(`Request ${id} confirmed and updated in the database.`);
     } catch (error) {
       console.error("Error confirming request:", error);
+    }
+  };
+
+  const handleConfirmOrder = async (id) => {
+    try {
+      const response = await fetch(
+        `http://4.211.87.132:5000/api/orders/${id}/approve`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ aprovadoporadministrador: true }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to approve order in the database.");
+      }
+
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.encomendaid === id
+            ? { ...order, aprovadoporadministrador: true }
+            : order
+        )
+      );
+
+      console.log(`Order ${id} approved and updated in the database.`);
+    } catch (error) {
+      console.error("Error approving order:", error);
     }
   };
 
@@ -75,9 +107,9 @@ const Alerts = () => {
               <div className="alerts-table-header">
                 <div className="column-id">ID</div>
                 <div className="column-name">Name</div>
-                <div className="column-description">Description</div>
-                <div className="column-available">Available</div>
-                <div className="column-minimum">Minimum</div>
+                <div className="column-description">Descricao</div>
+                <div className="column-available">Disponivel</div>
+                <div className="column-minimum">Minimo</div>
               </div>
               {medications.map((medication) => (
                 <div
@@ -104,6 +136,7 @@ const Alerts = () => {
             <p>No medications available at the moment.</p>
           )}
         </section>
+
         {/* Orders Section */}
         <section className="alerts-section">
           <h2>Encomendas</h2>
@@ -111,23 +144,44 @@ const Alerts = () => {
             <div className="alerts-table-container">
               <div className="alerts-table-header">
                 <div className="column-id">ID</div>
-                <div className="column-name">First Name</div>
-                <div className="column-description">Last Name</div>
-                <div className="column-available">Order Date</div>
-                <div className="column-minimum">Delivery Date</div>
+                <div className="column-name">Nome</div>
+                <div className="column-complete">Completa?</div>
+                <div className="column-approved">Aprovado?</div>
+                <div className="column-order-date">Data de Encomenda</div>
+                <div className="column-delivery-date">Data de Entrega</div>
+                <div className="column-sent-quantity">Quantidade Enviada</div>
+                <div className="column-action">Ação</div>
               </div>
               {orders.map((order) => (
                 <div className="alerts-table-row" key={order.encomendaid}>
                   <div className="column-id">{order.encomendaid}</div>
-                  <div className="column-name">{order.nomeproprio}</div>
-                  <div className="column-description">{order.ultimonome}</div>
-                  <div className="column-available">
+                  <div className="column-name">
+                    {`${order.nomeproprio} ${order.ultimonome}`}
+                  </div>
+                  <div className="column-complete">
+                    {order.encomendacompleta ? "Sim" : "Nao"}
+                  </div>
+                  <div className="column-approved">
+                    {order.aprovadoporadministrador ? "Sim" : "Nao"}
+                  </div>
+                  <div className="column-order-date">
                     {new Date(order.dataencomenda).toLocaleDateString()}
                   </div>
-                  <div className="column-minimum">
+                  <div className="column-delivery-date">
                     {order.dataentrega
                       ? new Date(order.dataentrega).toLocaleDateString()
                       : "N/A"}
+                  </div>
+                  <div className="column-sent-quantity">
+                    {order.quantidadeenviada}
+                  </div>
+                  <div className="column-action">
+                  <button
+                      className="confirm-button"
+                      onClick={() => handleConfirmOrder(order.aprovadoporadministrador)}
+                    >
+                      Aprovar
+                    </button>
                   </div>
                 </div>
               ))}
@@ -136,6 +190,7 @@ const Alerts = () => {
             <p>No orders available at the moment.</p>
           )}
         </section>
+
         {/* Requests Section */}
         <section className="alerts-section">
           <h2>Requisições</h2>
@@ -150,7 +205,10 @@ const Alerts = () => {
                 <div className="column-action">Ação</div>
               </div>
               {requests.map((request) => (
-                <div className="alerts-table-row-request" key={request.requisicaoid}>
+                <div
+                  className="alerts-table-row-request"
+                  key={request.requisicaoid}
+                >
                   <div className="column-id">{request.requisicaoid}</div>
                   <div className="column-name">
                     {`${request.nomeproprio} ${request.ultimonome}`}
@@ -171,7 +229,7 @@ const Alerts = () => {
                       className="confirm-button"
                       onClick={() => handleConfirmRequest(request.requisicaoid)}
                     >
-                      Confirmar
+                      Aprovar
                     </button>
                   </div>
                 </div>
