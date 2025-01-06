@@ -41,6 +41,72 @@
   background-color: #f9f9f9; /* Alternate row color */
 }
 
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.popup h3 {
+  margin-bottom: 20px;
+}
+
+.popup button {
+  margin: 10px;
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.popup button:hover {
+  background-color: #0056b3;
+}
+
+.close-button {
+  background-color: #ff4d4d;
+}
+
+.close-button:hover {
+  background-color: #e60000;
+}
+
+.service-table-container {
+  width: 100em;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.service-table-container .product-table-header {
+  background-color: #d3d3d3;
+}
+
+.service-table-container .product-table-row:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+
 /* Responsive Table */
 @media (max-width: 768px) {
   .table-header, .table-row {
