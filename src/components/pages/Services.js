@@ -27,7 +27,7 @@ const Services = () => {
 
   return (
     <div className="services-page">
-      <Toolbar name="Services" />
+      <Toolbar name="Servicos" />
       <div className="services-content">
         {error && <p>{error}</p>}
         {services.length > 0 ? (

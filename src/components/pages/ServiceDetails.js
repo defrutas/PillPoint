@@ -37,9 +37,9 @@ const ServiceDetails = () => {
   if (error) {
     return (
       <div className="service-details-page">
-        <h1>Service Details</h1>
+        <h1>Detalhes</h1>
         <p className="error">{error}</p>
-        <button onClick={() => navigate(-1)}>Go Back</button>
+        <button onClick={() => navigate(-1)}>Voltar</button>
       </div>
     );
   }
@@ -47,7 +47,7 @@ const ServiceDetails = () => {
   if (!service) {
     return (
       <div className="service-details-page">
-        <h1>Loading...</h1>
+        <h1>A Carregar...</h1>
       </div>
     );
   }
@@ -66,7 +66,7 @@ const ServiceDetails = () => {
           <strong>Disponível 24h:</strong> {service.servicodisponivel24horas ? 'Sim' : 'Não'}
         </p>
       </div>
-      <button onClick={() => navigate(-1)}>Go Back</button>
+      <button onClick={() => navigate(-1)}>Voltar</button>
     </div>
   );
 };
