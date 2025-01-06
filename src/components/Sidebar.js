@@ -8,7 +8,7 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchAlertCounts = async () => {
       try {
-        const response = await fetch('http://4.211.87.132:5000/api/alerts');
+        const response = await fetch('http://4.211.87.132:5000/api/notifications');
         if (!response.ok) {
           throw new Error('Failed to fetch alert data');
         }

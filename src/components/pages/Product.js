@@ -9,7 +9,7 @@ const Product = () => {
   useEffect(() => {
     const fetchMedicamentos = async () => {
       try {
-        const response = await fetch('http://4.211.87.132:5000/api/checkDatabase/check');
+        const response = await fetch('http://4.211.87.132:5000/api/stock/inventory');
         if (!response.ok) {
           throw new Error('Failed to fetch data');
         }

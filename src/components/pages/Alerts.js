@@ -11,7 +11,7 @@ const Alerts = () => {
   const handleConfirmRequest = async (id) => {
     try {
       const response = await fetch(
-        `http://4.211.87.132:5000/api/requests/${id}/confirm`,
+        `http://4.211.87.132:5000/api/request/approve/${id}/confirm`,
         {
           method: "PUT",
           headers: {
@@ -42,7 +42,7 @@ const Alerts = () => {
   const handleConfirmOrder = async (id) => {
     try {
       const response = await fetch(
-        `http://4.211.87.132:5000/api/orders/${id}/approve`,
+        `http://4.211.87.132:5000/api/orders/approve/${id}`,
         {
           method: "PUT",
           headers: {
@@ -99,7 +99,7 @@ const Alerts = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://4.211.87.132:5000/api/alerts");
+        const response = await fetch("http://4.211.87.132:5000/api/notifications");
         if (!response.ok) {
           throw new Error("Failed to fetch data");
         }
