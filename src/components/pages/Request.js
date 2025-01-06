@@ -12,8 +12,9 @@ const Request = () => {
         const allRequests = [];
 
         for (let i = 1; i <= 10; i++) {
+			
           try {
-            const response = await fetch(`http://4.211.87.132:5000/api/requisitions/list/${i}`, {
+            const response = await fetch(`http://4.211.87.132:5000/api/requests/list/${i}`, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
