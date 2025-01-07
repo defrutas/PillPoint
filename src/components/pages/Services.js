@@ -52,39 +52,47 @@ const Services = () => {
   };
 
   const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const response = await fetch(
-        "http://4.211.87.132:5000/api/services/servico",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newService),
-        }
-      );
+  e.preventDefault();
+  setLoading(true);
 
-      if (response.ok) {
-        const data = await response.json();
-        setServices((prevState) => [...prevState, data]);
-        setIsModalOpen(false);
-        setNewService({
-          descricao: "",
-          servicoDisponivel24horas: false,
-          localidadeServico: "",
-        });
-      } else {
-        setError("Failed to create new service");
-      }
-    } catch (error) {
-      setError("Error submitting form");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+  // Prepare the payload
+  const payload = {
+    localidadeServico: newService.localidadeServico,
+    tipoID: parseInt(newService.tipoID, 10), // Replace with the actual tipoID field
   };
+
+  try {
+    const response = await fetch(
+      "http://4.211.87.132:5000/api/services/servico",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      setServices((prevState) => [...prevState, data]);
+      setIsModalOpen(false);
+      setNewService({
+        descricao: "",
+        servicoDisponivel24horas: false,
+        localidadeServico: "",
+      });
+    } else {
+      setError("Failed to create new service");
+    }
+  } catch (error) {
+    setError("Error submitting form");
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="services-page">
