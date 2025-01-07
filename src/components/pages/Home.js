@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"; 
 import "../../App.css";
 import Navbar from "../Navbar";
 import Sidebar from "../Sidebar";
@@ -22,14 +22,30 @@ function Home() {
         }
         const data = await response.json();
 
+        // Helper function to extract the number from a string
+        const extractNumberFromString = (str) => {
+          const match = str.match(/\d+/);  // Extracts the first number in a string
+          return match ? parseInt(match[0], 10) : 0;
+        };
+
         setCounts({
-          medicamentos: data.medications?.length || 0,
-          alertas:
-            (data.medications?.length || 0) +
-            (data.orders?.length || 0) +
-            (data.requests?.length || 0),
-          encomendas: data.orders?.length || 0,
-          requisicoes: data.requests?.length || 0,
+          medicamentos: typeof data.medications === 'string' 
+            ? extractNumberFromString(data.medications)
+            : (Array.isArray(data.medications) ? data.medications.length : 0),
+          
+          alertas: (
+            (typeof data.medications === 'string' ? extractNumberFromString(data.medications) : (Array.isArray(data.medications) ? data.medications.length : 0)) +
+            (typeof data.orders === 'string' ? extractNumberFromString(data.orders) : (Array.isArray(data.orders) ? data.orders.length : 0)) +
+            (typeof data.requests === 'string' ? extractNumberFromString(data.requests) : (Array.isArray(data.requests) ? data.requests.length : 0))
+          ),
+          
+          encomendas: typeof data.orders === 'string' 
+            ? extractNumberFromString(data.orders) 
+            : (Array.isArray(data.orders) ? data.orders.length : 0),
+
+          requisicoes: typeof data.requests === 'string' 
+            ? extractNumberFromString(data.requests)
+            : (Array.isArray(data.requests) ? data.requests.length : 0),
         });
       } catch (error) {
         console.error("Error fetching counts:", error);

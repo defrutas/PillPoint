@@ -3,9 +3,9 @@ import Toolbar from "../Toolbar"; // Toolbar component
 import "./Alerts.css"; // Import the CSS file
 
 const Alerts = () => {
-  const [medications, setMedications] = useState([]);
-  const [orders, setOrders] = useState([]);
-  const [requests, setRequests] = useState([]);
+  const [medications, setMedications] = useState("");
+  const [orders, setOrders] = useState("");
+  const [requests, setRequests] = useState("");
   const [error, setError] = useState("");
 
   const handleConfirmRequest = async (id) => {
@@ -104,13 +104,12 @@ const Alerts = () => {
           throw new Error("Failed to fetch data");
         }
         const data = await response.json();
-        if (data) {
-          setMedications(data.medications || []);
-          setOrders(data.orders || []);
-          setRequests(data.requests || []);
-        } else {
-          setError("No data found");
-        }
+        console.log("API Response:", data);
+
+        // If the response contains messages, set them to the respective states
+        setMedications(data.medications || "");
+        setOrders(data.orders || "");
+        setRequests(data.requests || "");
       } catch (error) {
         setError("Failed to load data");
         console.error(error);
@@ -128,7 +127,9 @@ const Alerts = () => {
         {/* Medications Section */}
         <section className="alerts-section">
           <h2>Medicamentos</h2>
-          {medications.length > 0 ? (
+          {medications === "All medications are above the minimum quantity." ? (
+            <p>{medications}</p>
+          ) : medications ? (
             <div className="alerts-table-container">
               <div className="alerts-table-header">
                 <div className="column-id">ID</div>
@@ -138,36 +139,8 @@ const Alerts = () => {
                 <div className="column-minimum">Minimo</div>
                 <div className="column-action">Ação</div>
               </div>
-              {medications.map((medication) => (
-                <div
-                  className="alerts-table-row"
-                  key={medication.medicamentoid}
-                >
-                  <div className="column-id">{medication.medicamentoid}</div>
-                  <div className="column-name">
-                    {medication.nomemedicamento}
-                  </div>
-                  <div className="column-description">
-                    {medication.descricao}
-                  </div>
-                  <div className="column-available">
-                    {medication.quantidadedisponivel}
-                  </div>
-                  <div className="column-minimum">
-                    {medication.quantidademinima}
-                  </div>
-                  <div className="column-action">
-                    <button
-                      className="create-order-button"
-                      onClick={() =>
-                        handleCreateOrder(medication.medicamentoid)
-                      }
-                    >
-                      Criar Encomenda
-                    </button>
-                  </div>
-                </div>
-              ))}
+              {/* If medications were an array, you would map over them here */}
+              {/* As it's now a string, no mapping is needed */}
             </div>
           ) : (
             <p>No medications available at the moment.</p>
@@ -177,7 +150,9 @@ const Alerts = () => {
         {/* Orders Section */}
         <section className="alerts-section">
           <h2>Encomendas</h2>
-          {orders.length > 0 ? (
+          {orders === "No pending approval orders." ? (
+            <p>{orders}</p>
+          ) : orders ? (
             <div className="alerts-table-container">
               <div className="alerts-table-header">
                 <div className="column-id">ID</div>
@@ -189,41 +164,7 @@ const Alerts = () => {
                 <div className="column-sent-quantity">Quantidade Enviada</div>
                 <div className="column-action">Ação</div>
               </div>
-              {orders.map((order) => (
-                <div className="alerts-table-row" key={order.encomendaid}>
-                  <div className="column-id">{order.encomendaid}</div>
-                  <div className="column-name">
-                    {`${order.nomeproprio} ${order.ultimonome}`}
-                  </div>
-                  <div className="column-complete">
-                    {order.encomendacompleta ? "Sim" : "Nao"}
-                  </div>
-                  <div className="column-approved">
-                    {order.aprovadoporadministrador ? "Sim" : "Nao"}
-                  </div>
-                  <div className="column-order-date">
-                    {new Date(order.dataencomenda).toLocaleDateString()}
-                  </div>
-                  <div className="column-delivery-date">
-                    {order.dataentrega
-                      ? new Date(order.dataentrega).toLocaleDateString()
-                      : "N/A"}
-                  </div>
-                  <div className="column-sent-quantity">
-                    {order.quantidadeenviada}
-                  </div>
-                  <div className="column-action">
-                    <button
-                      className="confirm-button"
-                      onClick={() =>
-                        handleConfirmOrder(order.aprovadoporadministrador)
-                      }
-                    >
-                      Aprovar
-                    </button>
-                  </div>
-                </div>
-              ))}
+              {/* If orders were an array, you would map over them here */}
             </div>
           ) : (
             <p>No orders available at the moment.</p>
@@ -233,7 +174,9 @@ const Alerts = () => {
         {/* Requests Section */}
         <section className="alerts-section">
           <h2>Requisições</h2>
-          {requests.length > 0 ? (
+          {requests === "No pending approval requests." ? (
+            <p>{requests}</p>
+          ) : requests ? (
             <div className="alerts-table-container-request">
               <div className="alerts-table-header-request">
                 <div className="column-id">ID</div>
@@ -243,36 +186,7 @@ const Alerts = () => {
                 <div className="column-approved">Aprovado?</div>
                 <div className="column-action">Ação</div>
               </div>
-              {requests.map((request) => (
-                <div
-                  className="alerts-table-row-request"
-                  key={request.requisicaoid}
-                >
-                  <div className="column-id">{request.requisicaoid}</div>
-                  <div className="column-name">
-                    {`${request.nomeproprio} ${request.ultimonome}`}
-                  </div>
-                  <div className="column-available">
-                    {new Date(request.datarequisicao).toLocaleDateString()}
-                  </div>
-                  <div className="column-minimum">
-                    {request.dataentrega
-                      ? new Date(request.dataentrega).toLocaleDateString()
-                      : "N/A"}
-                  </div>
-                  <div className="column-approved">
-                    {request.aprovadoporadministrador ? "Sim" : "Nao"}
-                  </div>
-                  <div className="column-action">
-                    <button
-                      className="confirm-button"
-                      onClick={() => handleConfirmRequest(request.requisicaoid)}
-                    >
-                      Aprovar
-                    </button>
-                  </div>
-                </div>
-              ))}
+              {/* If requests were an array, you would map over them here */}
             </div>
           ) : (
             <p>No requests available at the moment.</p>
