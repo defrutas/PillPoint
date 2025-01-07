@@ -32,7 +32,11 @@ const Encomendas = () => {
 
   return (
     <div className="encomendas-page">
-      <Toolbar name="Encomendas" />
+      <Toolbar 
+        name="Encomendas"
+        buttonLabel="Nova Encomenda"
+        onButtonClick={() => console.log('Create a new encomenda')} 
+      />
       <div className="encomendas-content">
         {error && <p>{error}</p>}
         {encomendas.length > 0 ? (

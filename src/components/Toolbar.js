@@ -28,19 +28,21 @@ const Toolbar = ({ name, buttonLabel, onButtonClick }) => {
             placeholder="Pesquisar..."
           />
         </div>
-        <div className="toolbar-button">
-          {buttonLabel && (
+        {/* Render the button only if buttonLabel is passed */}
+        {buttonLabel && (
+          <div className="toolbar-button">
             <button
               className="toolbar-button"
               onClick={onButtonClick} // Trigger the callback when clicked
             >
               {buttonLabel}
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default Toolbar;
+

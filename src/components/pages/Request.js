@@ -59,7 +59,11 @@ const Request = () => {
 
   return (
     <div className="requests-page">
-      <Toolbar name="Requisições" />
+      <Toolbar 
+        name="Requisições"
+        buttonLabel="Nova Requisição"
+        onButtonClick={() => console.log('Create a new request')} 
+      />
       <div className="requests-content">
         {error && <p>{error}</p>}
         {requisicoes.length > 0 ? (
