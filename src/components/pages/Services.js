@@ -6,12 +6,13 @@ import "./Services.css"; // Import the CSS file for services styling
 const Services = () => {
   const [services, setServices] = useState([]);
   const [error, setError] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false); // To control modal visibility
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [newService, setNewService] = useState({
     descricao: "",
     servicoDisponivel24horas: false,
     localidadeServico: "",
   });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -34,27 +35,28 @@ const Services = () => {
   }, []);
 
   const handleNewServiceClick = () => {
-    setIsModalOpen(true); // Open the modal when the button is clicked
+    setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false); // Close the modal when the "Cancelar" button is clicked
+    setIsModalOpen(false);
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewService((prevState) => ({
       ...prevState,
-      [name]: value,
+      [name]:
+        name === "servicoDisponivel24horas" ? value === "true" : value, // Convert to boolean
     }));
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      // POST request to create a new service
       const response = await fetch(
-        "http://4.211.87.132:5000/api/services/create",
+        "http://4.211.87.132:5000/api/services/servico",
         {
           method: "POST",
           headers: {
@@ -66,56 +68,55 @@ const Services = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setServices((prevState) => [...prevState, data]); // Add new service to the list
-        setIsModalOpen(false); // Close the modal after successful submission
+        setServices((prevState) => [...prevState, data]);
+        setIsModalOpen(false);
         setNewService({
           descricao: "",
           servicoDisponivel24horas: false,
           localidadeServico: "",
-        }); // Reset the form fields
+        });
       } else {
         setError("Failed to create new service");
       }
     } catch (error) {
       setError("Error submitting form");
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="services-page">
       <Toolbar
-        name="Servicos"
+        name="Serviços"
         buttonLabel="Adicionar Novo Serviço"
-        onButtonClick={handleNewServiceClick} // Trigger modal on button click
+        onButtonClick={handleNewServiceClick}
       />
       <div className="services-content">
-        {error && <p>{error}</p>}
+        {error && <p className="error">{error}</p>}
         {services.length > 0 ? (
           <div className="services-table-container">
-            {/* Table Header */}
             <div className="services-table-header">
               <div className="column">#</div>
               <div className="column">Nome</div>
               <div className="column">Localidade</div>
               <div className="column">Disponível 24h</div>
             </div>
-
-            {/* Table Rows */}
             {services.map((service, index) => (
               <div className="services-table-row" key={index}>
-                <div className="column">{service.servicoid}</div>
+                <div className="column">{service.servicoID}</div>
                 <div className="column">
                   <Link
-                    to={`/services/${service.servicoid}`}
+                    to={`/services/${service.servicoID}`}
                     className="service-link"
                   >
                     {service.descricao}
                   </Link>
                 </div>
-                <div className="column">{service.localidadeservico}</div>
+                <div className="column">{service.localidadeServico}</div>
                 <div className="column">
-                  {service.servicodisponivel24horas ? "Sim" : "Não"}
+                  {service.servicoDisponivel24horas ? "Sim" : "Não"}
                 </div>
               </div>
             ))}
@@ -125,7 +126,6 @@ const Services = () => {
         )}
       </div>
 
-      {/* Modal for adding new service */}
       {isModalOpen && (
         <div className="modal">
           <div className="modal-content">
@@ -145,7 +145,6 @@ const Services = () => {
                   required
                 />
               </div>
-
               <div className="form-group">
                 <label htmlFor="servicoDisponivel24horas">Disponível 24h</label>
                 <select
@@ -159,7 +158,6 @@ const Services = () => {
                   <option value="false">Não</option>
                 </select>
               </div>
-
               <div className="form-group">
                 <label htmlFor="localidadeServico">Localidade</label>
                 <input
@@ -172,8 +170,9 @@ const Services = () => {
                   required
                 />
               </div>
-
-              <button type="submit">Salvar</button>
+              <button type="submit" disabled={loading}>
+                {loading ? "Salvando..." : "Salvar"}
+              </button>
               <button
                 type="button"
                 className="cancel-btn"
