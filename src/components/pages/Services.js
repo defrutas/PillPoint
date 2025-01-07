@@ -66,7 +66,7 @@ const Services = () => {
 
     try {
       const response = await fetch(
-        "http://4.211.87.132:5000/api/services/servico-completo",
+        "http://4.211.87.132:5000/api/services/add",
         {
           method: "POST",
           headers: {
