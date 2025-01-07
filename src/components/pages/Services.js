@@ -5,13 +5,18 @@ import "./Services.css"; // Import the CSS file for services styling
 
 const Services = () => {
   const [services, setServices] = useState([]);
+  const [tipos, setTipos] = useState([]);
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newService, setNewService] = useState({
-    descricao: "",
-    servicoDisponivel24horas: false,
     localidadeServico: "",
+    tipoID: "",
+    novoTipoServico: {
+      descricao: "",
+      servicoDisponivel24horas: false,
+    },
   });
+  const [createNewTipo, setCreateNewTipo] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -31,7 +36,24 @@ const Services = () => {
       }
     };
 
+    const fetchTipos = async () => {
+      try {
+        const response = await fetch(
+          "http://4.211.87.132:5000/api/services/tiposervicos"
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch tipos");
+        }
+        const data = await response.json();
+        setTipos(data);
+      } catch (error) {
+        setError("Failed to load tipos data");
+        console.error(error);
+      }
+    };
+
     fetchServices();
+    fetchTipos();
   }, []);
 
   const handleNewServiceClick = () => {
@@ -40,59 +62,75 @@ const Services = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setCreateNewTipo(false);
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewService((prevState) => ({
-      ...prevState,
-      [name]:
-        name === "servicoDisponivel24horas" ? value === "true" : value, // Convert to boolean
-    }));
+
+    if (createNewTipo && name.startsWith("novoTipoServico.")) {
+      const field = name.split(".")[1];
+      setNewService((prevState) => ({
+        ...prevState,
+        novoTipoServico: {
+          ...prevState.novoTipoServico,
+          [field]:
+            field === "servicoDisponivel24horas" ? value === "true" : value,
+        },
+      }));
+    } else {
+      setNewService((prevState) => ({
+        ...prevState,
+        [name]: value, // Ensure correct state update for localidadeServico and other fields
+      }));
+    }
   };
 
   const handleFormSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-  // Prepare the payload
-  const payload = {
-    localidadeServico: newService.localidadeServico,
-    tipoID: parseInt(newService.tipoID, 10), // Replace with the actual tipoID field
-  };
+    const payload = {
+      localidadeServico: newService.localidadeServico,
+      tipoID: createNewTipo ? undefined : parseInt(newService.tipoID, 10),
+      novoTipoServico: createNewTipo ? newService.novoTipoServico : undefined,
+    };
 
-  try {
-    const response = await fetch(
-      "http://4.211.87.132:5000/api/services/servico",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+    try {
+      const response = await fetch(
+        "http://4.211.87.132:5000/api/services/servico-completo",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setServices((prevState) => [...prevState, data]);
+        setIsModalOpen(false);
+        setNewService({
+          localidadeServico: "",
+          tipoID: "",
+          novoTipoServico: {
+            descricao: "",
+            servicoDisponivel24horas: false,
+          },
+        });
+        setCreateNewTipo(false);
+      } else {
+        setError("Failed to create new service");
       }
-    );
-
-    if (response.ok) {
-      const data = await response.json();
-      setServices((prevState) => [...prevState, data]);
-      setIsModalOpen(false);
-      setNewService({
-        descricao: "",
-        servicoDisponivel24horas: false,
-        localidadeServico: "",
-      });
-    } else {
-      setError("Failed to create new service");
+    } catch (error) {
+      setError("Error submitting form");
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    setError("Error submitting form");
-    console.error(error);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
     <div className="services-page">
@@ -111,8 +149,8 @@ const Services = () => {
               <div className="column">Localidade</div>
               <div className="column">Disponível 24h</div>
             </div>
-            {services.map((service, index) => (
-              <div className="services-table-row" key={index}>
+            {services.map((service) => (
+              <div className="services-table-row" key={service.servicoID}>
                 <div className="column">{service.servicoID}</div>
                 <div className="column">
                   <Link
@@ -142,31 +180,6 @@ const Services = () => {
             </span>
             <form onSubmit={handleFormSubmit}>
               <div className="form-group">
-                <label htmlFor="descricao">Descrição</label>
-                <input
-                  type="text"
-                  name="descricao"
-                  id="descricao"
-                  placeholder="Descrição do Serviço"
-                  value={newService.descricao}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="servicoDisponivel24horas">Disponível 24h</label>
-                <select
-                  name="servicoDisponivel24horas"
-                  id="servicoDisponivel24horas"
-                  value={newService.servicoDisponivel24horas}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="true">Sim</option>
-                  <option value="false">Não</option>
-                </select>
-              </div>
-              <div className="form-group">
                 <label htmlFor="localidadeServico">Localidade</label>
                 <input
                   type="text"
@@ -178,6 +191,68 @@ const Services = () => {
                   required
                 />
               </div>
+
+              {!createNewTipo ? (
+                <div className="form-group">
+                  <label htmlFor="tipoID">Tipo de Serviço</label>
+                  <select
+                    name="tipoID"
+                    id="tipoID"
+                    value={newService.tipoID}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="">Selecione um Tipo</option>
+                    {tipos.map((tipo) => (
+                      <option key={tipo.tipoID} value={tipo.tipoID}>
+                        {tipo.descricao}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <>
+                  <div className="form-group">
+                    <label htmlFor="novoTipoServico.descricao">Descrição</label>
+                    <input
+                      type="text"
+                      name="novoTipoServico.descricao"
+                      id="novoTipoServico.descricao"
+                      placeholder="Descrição do Tipo"
+                      value={newService.novoTipoServico.descricao}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="novoTipoServico.servicoDisponivel24horas">
+                      Disponível 24h
+                    </label>
+                    <select
+                      name="novoTipoServico.servicoDisponivel24horas"
+                      id="novoTipoServico.servicoDisponivel24horas"
+                      value={newService.novoTipoServico.servicoDisponivel24horas}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value="true">Sim</option>
+                      <option value="false">Não</option>
+                    </select>
+                  </div>
+                </>
+              )}
+
+              <div className="form-group">
+                <button
+                  type="button"
+                  onClick={() => setCreateNewTipo(!createNewTipo)}
+                >
+                  {createNewTipo
+                    ? "Selecionar Tipo Existente"
+                    : "Criar Novo Tipo"}
+                </button>
+              </div>
+
               <button type="submit" disabled={loading}>
                 {loading ? "Salvando..." : "Salvar"}
               </button>
