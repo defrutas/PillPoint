@@ -10,30 +10,29 @@ const Product = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [newMedication, setNewMedication] = useState({
     nomeMedicamento: '',
-    tipoID: '',
+    tipoMedicamento: '',
     descricao: '',
   });
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch admin status
-    const fetchAdminStatus = async () => {
-      try {
-        const response = await fetch('http://4.211.87.132:5000/api/user/admin-status', {
-          method: 'GET',
-          credentials: 'include', // Ensure proper authentication handling
-        });
-        const data = await response.json();
-        setIsAdmin(data.isAdmin);
-      } catch (error) {
-        console.error('Failed to fetch admin status', error);
+    // Check if the user is logged in and if the user is an admin
+    const checkAdminStatus = () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decode the JWT token
+          setIsAdmin(decodedToken.isAdmin); // Set the admin status from the token
+        } catch (error) {
+          console.error('Failed to decode token', error);
+        }
       }
     };
 
     const fetchMedicamentos = async () => {
       try {
-        const response = await fetch('http://4.211.87.132:5000/api/stock/inventory');
+        const response = await fetch('http://4.211.87.132:5000/api/products/all');
         if (!response.ok) {
           throw new Error('Failed to fetch data');
         }
@@ -45,8 +44,8 @@ const Product = () => {
       }
     };
 
-    fetchAdminStatus();
-    fetchMedicamentos();
+    checkAdminStatus();  // Check if the user is an admin based on the JWT token
+    fetchMedicamentos();  // Fetch the medicamentos
   }, []);
 
   const handleInputChange = (e) => {
@@ -57,7 +56,7 @@ const Product = () => {
   const handleCreateMedication = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://4.211.87.132:5000/api/medication/new', {
+      const response = await fetch('http://4.211.87.132:5000/api/products/new', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newMedication),
@@ -77,7 +76,7 @@ const Product = () => {
     <div className="product-page">
       <Toolbar 
         name="Medicamentos"
-        buttonLabel="Readquirir Stock"
+        buttonLabel="Criar Medicamento"
         onButtonClick={() => setShowCreateForm(!showCreateForm)}
       />
       <div className="product-content">
@@ -89,7 +88,6 @@ const Product = () => {
               <div className="column">Nome</div>
               <div className="column">Descrição</div>
               <div className="column">Quantidade Disponível</div>
-              <div className="column">Quantidade Mínima</div>
             </div>
 
             {medicamentos.map((medicamento, index) => (
@@ -98,12 +96,11 @@ const Product = () => {
                 <div className="column">{medicamento.nomemedicamento}</div>
                 <div className="column">{medicamento.descricao}</div>
                 <div className="column">{medicamento.quantidadedisponivel}</div>
-                <div className="column">{medicamento.quantidademinima}</div>
               </div>
             ))}
           </div>
         ) : (
-          <p>Não há medicamentos abaixo da quantidade mínima.</p>
+          <p>Não há medicamentos disponíveis.</p>
         )}
 
         {/* Admin-specific Button */}
@@ -129,9 +126,9 @@ const Product = () => {
               />
               <input
                 type="text"
-                name="tipoID"
-                placeholder="Tipo ID"
-                value={newMedication.tipoID}
+                name="tipoMedicamento"
+                placeholder="Tipo do Medicamento"
+                value={newMedication.tipoMedicamento}
                 onChange={handleInputChange}
                 required
               />
