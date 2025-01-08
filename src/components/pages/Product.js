@@ -54,10 +54,14 @@ const Product = () => {
 
   const handleCreateMedication = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem('token');  // Get token from localStorage
     try {
       const response = await fetch('http://4.211.87.132:5000/api/products/new', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Add Authorization header
+        },
         body: JSON.stringify(newMedication),
       });
       if (!response.ok) {
