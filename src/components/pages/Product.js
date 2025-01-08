@@ -58,44 +58,47 @@ const Product = () => {
     setShowCreateForm(true); // Open the pop-up
   };
 
-  const submitCreateMedication = async (e) => {
-    e.preventDefault();
+const submitCreateMedication = async (e) => {
+  e.preventDefault();
   
-    const token = localStorage.getItem('token'); // Get token from localStorage
-    if (!token) {
-      console.error('No token found. Please log in.');
+  const token = localStorage.getItem('token'); // Get token from localStorage
+  if (!token) {
+    console.error('No token found. Please log in.');
+    return;
+  }
+
+  if (!newMedication) {
+    console.error('No medication data provided.');
+    return;
+  }
+
+  try {
+    const response = await fetch('http://4.211.87.132:5000/api/products/new', {
+	method: 'POST',
+	headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+  },
+  body: JSON.stringify(newMedication),
+  mode: 'cors', // Explicitly set CORS mode
+});
+
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error creating medication:', errorData.message || response.statusText);
       return;
     }
-  
-    if (!newMedication) {
-      console.error('No medication data provided.');
-      return;
-    }
-  
-    try {
-      const response = await fetch('http://4.211.87.132:5000/api/products/new', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Correct template literal syntax
-        },
-        body: JSON.stringify(newMedication),
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Error creating medication:', errorData.message || response.statusText);
-        return;
-      }
-  
-      const createdMedication = await response.json();
-      setMedicamentos((prevMedicamentos) => [...prevMedicamentos, createdMedication]); // Update the state safely
-      setShowCreateForm(false); // Close the form after successful creation
-      console.log('Medication created successfully:', createdMedication);
-    } catch (error) {
-      console.error('Error creating medication:', error);
-    }
-  };
+
+    const createdMedication = await response.json();
+    setMedicamentos((prevMedicamentos) => [...prevMedicamentos, createdMedication]); // Update the state safely
+    setShowCreateForm(false); // Close the form after successful creation
+    console.log('Medication created successfully:', createdMedication);
+  } catch (error) {
+    console.error('Error creating medication:', error);
+  }
+};
+
   
 
   return (
@@ -135,45 +138,45 @@ const Product = () => {
         <div className="popup-overlay">
           <div className="popup-products">
             <h3>Criar Novo Medicamento</h3>
-            <form className="products-form" onSubmit={submitCreateMedication}>
-              <input
-                className="input-product"
-                type="text"
-                name="nomeMedicamento"
-                placeholder="Nome do Medicamento"
-                value={newMedication.nomeMedicamento}
-                onChange={handleInputChange}
-                required
-              />
-              <input
-                className="input-product"
-                type="text"
-                name="tipoMedicamento"
-                placeholder="Tipo do Medicamento"
-                value={newMedication.tipoMedicamento}
-                onChange={handleInputChange}
-                required
-              />
-              <input
-                className="input-product"
-                type="date"
-                name="dataValidade"
-                placeholder="Data de Validade"
-                value={newMedication.dataValidade}
-                onChange={handleInputChange}
-                required
-              />
-              <input
-                className="input-product"
-                type="text"
-                name="lote"
-                placeholder="Lote"
-                value={newMedication.lote}
-                onChange={handleInputChange}
-                required
-              />
-              <button onClick={submitCreateMedication}>Salvar</button>
-            </form>
+			<form className="products-form" onSubmit={submitCreateMedication}>
+			  <input
+				className="input-product"
+				type="text"
+				name="nomeMedicamento"
+				placeholder="Nome do Medicamento"
+				value={newMedication.nomeMedicamento}
+				onChange={handleInputChange}
+				required
+			  />
+			  <input
+				className="input-product"
+				type="text"
+				name="tipoMedicamento"
+				placeholder="Tipo do Medicamento"
+				value={newMedication.tipoMedicamento}
+				onChange={handleInputChange}
+				required
+			  />
+			  <input
+				className="input-product"
+				type="date"
+				name="dataValidade"
+				placeholder="Data de Validade"
+				value={newMedication.dataValidade}
+				onChange={handleInputChange}
+				required
+			  />
+			  <input
+				className="input-product"
+				type="text"
+				name="lote"
+				placeholder="Lote"
+				value={newMedication.lote}
+				onChange={handleInputChange}
+				required
+			  />
+			  <button type="submit">Salvar</button> {/* Only "type='submit'" here */}
+			</form>
             <button className="close-button" onClick={() => setShowCreateForm(false)}>
               Fechar
             </button>
