@@ -193,8 +193,8 @@ const Services = () => {
       </div>
 
       {isModalOpen && (
-        <div className="modal">
-          <div className="modal-content">
+        <div className="modal-services">
+          <div className="modal-content-services">
             <span className="close" onClick={handleCloseModal}>
               &times;
             </span>

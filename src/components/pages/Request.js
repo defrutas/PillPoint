@@ -1,3 +1,4 @@
+// Request.js
 import React, { useState, useEffect } from 'react';
 import Toolbar from '../Toolbar'; // Toolbar component
 import './Request.css';
@@ -17,7 +18,6 @@ const Request = () => {
     medicamentos: [],
   });
   const [medicamento, setMedicamento] = useState({ medicamentoID: '', quantidade: '' });
-  const [medicamentosList, setMedicamentosList] = useState([]);
 
   useEffect(() => {
     const fetchRequisicoes = async () => {
@@ -124,89 +124,59 @@ const Request = () => {
       <div className="requests-content">
         {error && <p>{error}</p>}
         {showForm && (
-          <form className="request-form" onSubmit={handleFormSubmit}>
-            <input
-              type="text"
-              name="estadoID"
-              placeholder="Estado ID"
-              value={formData.estadoID}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="text"
-              name="profissionalID"
-              placeholder="Profissional ID"
-              value={formData.profissionalID}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="text"
-              name="adminID"
-              placeholder="Admin ID"
-              value={formData.adminID}
-              onChange={handleInputChange}
-              required
-            />
-            <label>
-              Aprovado:
-              <input
-                type="checkbox"
-                name="aprovadoPorAdministrador"
-                checked={formData.aprovadoPorAdministrador}
-                onChange={handleInputChange}
-              />
-            </label>
-            <label>
-              Completo:
-              <input
-                type="checkbox"
-                name="requisicaoCompleta"
-                checked={formData.requisicaoCompleta}
-                onChange={handleInputChange}
-              />
-            </label>
-            <input
-              type="date"
-              name="dataRequisicao"
-              value={formData.dataRequisicao}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="date"
-              name="dataEntrega"
-              value={formData.dataEntrega}
-              onChange={handleInputChange}
-              required
-            />
+          <div className="modal-overlay-request" onClick={() => setShowForm(false)}>
+            <div className="modal-request" onClick={(e) => e.stopPropagation()}>
+              <form className="request-form-request" onSubmit={handleFormSubmit}>
+                <input //estado
+                  type="text"
+                  name="estadoID"
+                  placeholder="Estado ID"
+                  value={formData.estadoID}
+                  onChange={handleInputChange}
+                  required
+                />
+                <input // ir buscar a data do pc
+                  type="date"
+                  name="dataRequisicao"
+                  value={formData.dataRequisicao}
+                  onChange={handleInputChange}
+                  required
+                />
+                <input // por definição 0
+                  type="date"
+                  name="dataEntrega"
+                  value={formData.dataEntrega}
+                  onChange={handleInputChange}
+                  required
+                />
 
-            {/* Medication Section */}
-            <div className="medicamento-form">
-              <input
-                type="text"
-                name="medicamentoID"
-                value={medicamento.medicamentoID}
-                onChange={handleMedicamentoChange}
-                placeholder="Medicamento ID"
-                required
-              />
-              <input
-                type="number"
-                name="quantidade"
-                value={medicamento.quantidade}
-                onChange={handleMedicamentoChange}
-                placeholder="Quantidade"
-                required
-              />
-              <button type="button" onClick={addMedicamento}>
-                Adicionar Medicamento
-              </button>
+                <div className="medicamento-form">
+                  <input  
+                    type="text"
+                    name="medicamentoID"
+                    value={medicamento.medicamentoID}
+                    onChange={handleMedicamentoChange}
+                    placeholder="Medicamento ID"
+                    required
+                  />
+                  <input
+                    type="number"
+                    name="quantidade"
+                    value={medicamento.quantidade}
+                    onChange={handleMedicamentoChange}
+                    placeholder="Quantidade"
+                    required
+                  />
+                  <button type="button" onClick={addMedicamento}>
+                    Adicionar Medicamento
+                  </button>
+                  <button type="button" onClick={() => setShowForm(false)}>
+                    Cancelar
+                  </button>
+                </div>
+              </form>
             </div>
-
-            <button type="submit">Salvar</button>
-          </form>
+          </div>
         )}
         {requisicoes.length > 0 ? (
           <div className="requests-table-container">
