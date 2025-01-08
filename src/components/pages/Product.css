@@ -54,12 +54,16 @@
   z-index: 1000;
 }
 
-.popup {
+.popup-products {
   background: #fff;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
+}
+
+.products-form {
+  padding: 1em;
 }
 
 .popup h3 {
@@ -75,6 +79,17 @@
   border-radius: 5px;
   cursor: pointer;
 }
+
+.products-form .input-product {
+  display: block;
+  width: 100%; /* Optional: Makes the input take the full width of its container */
+  margin-bottom: 1em; /* Adds 1em spacing between inputs */
+  padding: 0.5em; /* Optional: Adds some padding inside the input for better usability */
+  border: 1px solid #ccc; /* Optional: Styles the input border */
+  border-radius: 4px; /* Optional: Adds rounded corners to the input */
+  box-sizing: border-box; /* Ensures padding is included in width */
+}
+
 
 .popup button:hover {
   background-color: #0056b3;

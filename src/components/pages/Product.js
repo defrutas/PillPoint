@@ -113,10 +113,11 @@ const Product = () => {
 
       {showCreateForm && (
         <div className="popup-overlay">
-          <div className="popup">
+          <div className="popup-products">
             <h3>Criar Novo Medicamento</h3>
-            <form onSubmit={submitCreateMedication}>
+            <form className="products-form" onSubmit={submitCreateMedication}>
               <input
+                className="input-product"
                 type="text"
                 name="nomeMedicamento"
                 placeholder="Nome do Medicamento"
@@ -125,6 +126,7 @@ const Product = () => {
                 required
               />
               <input
+                className="input-product"
                 type="text"
                 name="tipoMedicamento"
                 placeholder="Tipo do Medicamento"
@@ -133,6 +135,7 @@ const Product = () => {
                 required
               />
               <input
+                className="input-product"
                 type="text"
                 name="descricao"
                 placeholder="Descrição"
