@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import Toolbar from "../Toolbar"; // Toolbar component
-import "./Services.css"; // Import the CSS file for services styling
+import Toolbar from "../Toolbar";
+import "./Services.css";
 
 const Services = () => {
   const [services, setServices] = useState([]);
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingService, setEditingService] = useState(null);
   const [newService, setNewService] = useState({
     localidadeServico: "",
     nomeServico: "",
@@ -15,7 +16,7 @@ const Services = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  // Fetch services from backend
+  // Fetch all services on component mount
   useEffect(() => {
     const fetchServices = async () => {
       try {
@@ -34,28 +35,45 @@ const Services = () => {
     fetchServices();
   }, []);
 
-  // Modal toggle functions
-  const handleNewServiceClick = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  // Handle form field change
+  // Handle input changes in the form
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setNewService((prevState) => ({
       ...prevState,
-      [name]: name === "servicoDisponivel24horas" ? value === "true" : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-  // Handle form submit to create new service
+  // Handle "Add New Service" button click
+  const handleNewServiceClick = () => {
+    setNewService({
+      localidadeServico: "",
+      nomeServico: "",
+      descServico: "",
+      servicoDisponivel24horas: false,
+    });
+    setEditingService(null); // Reset editingService for new service
+    setIsModalOpen(true);
+  };
+
+  // Handle "Edit" button click
+  const handleEditClick = (service) => {
+    setEditingService(service);
+    setNewService(service);
+    setIsModalOpen(true);
+  };
+
+  // Handle form modal close
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setError("");
+  };
+
+  // Handle form submission for Add/Edit service
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
     const payload = {
       localidadeServico: newService.localidadeServico,
@@ -65,35 +83,57 @@ const Services = () => {
     };
 
     try {
-      const response = await fetch(
-        "http://4.211.87.132:5000/api/services/add",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const endpoint = editingService
+        ? `http://4.211.87.132:5000/api/services/servico/${editingService.servicoID}`
+        : "http://4.211.87.132:5000/api/services/add";
+      const method = editingService ? "PUT" : "POST";
+
+      const response = await fetch(endpoint, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
       if (response.ok) {
-        const data = await response.json();
-        setServices((prevState) => [...prevState, data]);
+        const updatedService = await response.json();
+        setServices((prevState) =>
+          editingService
+            ? prevState.map((service) =>
+                service.servicoID === updatedService.servicoID
+                  ? updatedService
+                  : service
+              )
+            : [...prevState, updatedService]
+        );
         setIsModalOpen(false);
-        setNewService({
-          localidadeServico: "",
-          nomeServico: "",
-          descServico: "",
-          servicoDisponivel24horas: false,
-        });
       } else {
-        setError("Failed to create new service");
+        setError("Failed to save service");
       }
     } catch (error) {
       setError("Error submitting form");
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle service deletion
+  const handleDeleteClick = async (id) => {
+    try {
+      const response = await fetch(
+        `http://4.211.87.132:5000/api/services/servico/${id}`,
+        { method: "DELETE" }
+      );
+      if (response.ok) {
+        setServices((prevState) =>
+          prevState.filter((service) => service.servicoID !== id)
+        );
+      } else {
+        setError("Failed to delete service");
+      }
+    } catch (error) {
+      setError("Error deleting service");
+      console.error(error);
     }
   };
 
@@ -113,6 +153,7 @@ const Services = () => {
               <div className="column">Nome</div>
               <div className="column">Localidade</div>
               <div className="column">Disponível 24h</div>
+              <div className="column">Ações</div>
             </div>
             {services.map((service) => (
               <div className="services-table-row" key={service.servicoID}>
@@ -129,6 +170,20 @@ const Services = () => {
                 <div className="column">
                   {service.servicoDisponivel24horas ? "Sim" : "Não"}
                 </div>
+                <div className="column">
+                  <button
+                    className="edit-btn"
+                    onClick={() => handleEditClick(service)}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDeleteClick(service.servicoID)}
+                  >
+                    Excluir
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -144,68 +199,46 @@ const Services = () => {
               &times;
             </span>
             <form onSubmit={handleFormSubmit}>
-              <div className="form-group">
-                <label htmlFor="localidadeServico">Localidade</label>
-                <input
-                  type="text"
-                  name="localidadeServico"
-                  id="localidadeServico"
-                  placeholder="Localidade do Serviço"
-                  value={newService.localidadeServico}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="nomeServico">Nome do Serviço</label>
+              <label>
+                Nome:
                 <input
                   type="text"
                   name="nomeServico"
-                  id="nomeServico"
-                  placeholder="Nome do Serviço"
                   value={newService.nomeServico}
                   onChange={handleInputChange}
                   required
                 />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="descServico">Descrição</label>
+              </label>
+              <label>
+                Localidade:
                 <input
                   type="text"
+                  name="localidadeServico"
+                  value={newService.localidadeServico}
+                  onChange={handleInputChange}
+                  required
+                />
+              </label>
+              <label>
+                Descrição:
+                <textarea
                   name="descServico"
-                  id="descServico"
-                  placeholder="Descrição do Serviço"
                   value={newService.descServico}
                   onChange={handleInputChange}
                   required
                 />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="servicoDisponivel24horas">Disponível 24h</label>
-                <select
+              </label>
+              <label>
+                Disponível 24h:
+                <input
+                  type="checkbox"
                   name="servicoDisponivel24horas"
-                  id="servicoDisponivel24horas"
-                  value={newService.servicoDisponivel24horas}
+                  checked={newService.servicoDisponivel24horas}
                   onChange={handleInputChange}
-                  required
-                >
-                  <option value="true">Sim</option>
-                  <option value="false">Não</option>
-                </select>
-              </div>
-
+                />
+              </label>
               <button type="submit" disabled={loading}>
                 {loading ? "Salvando..." : "Salvar"}
-              </button>
-              <button
-                type="button"
-                className="cancel-btn"
-                onClick={handleCloseModal}
-              >
-                Cancelar
               </button>
             </form>
           </div>
