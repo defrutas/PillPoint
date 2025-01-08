@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Toolbar from '../Toolbar';
 import './Product.css';
 
 const Product = () => {
@@ -66,7 +65,7 @@ const Product = () => {
       }
       const createdMedication = await response.json();
       setMedicamentos([...medicamentos, createdMedication]);
-      setShowCreateForm(false);
+      setShowCreateForm(false); // Close the form after successful creation
     } catch (error) {
       console.error('Error creating medication:', error);
     }
@@ -74,11 +73,6 @@ const Product = () => {
 
   return (
     <div className="product-page">
-      <Toolbar 
-        name="Medicamentos"
-        buttonLabel="Criar Medicamento"
-        onButtonClick={() => setShowCreateForm(!showCreateForm)}
-      />
       <div className="product-content">
         {error && <p>{error}</p>}
         {medicamentos.length > 0 ? (
