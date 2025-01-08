@@ -11,7 +11,8 @@ const Product = () => {
   const [newMedication, setNewMedication] = useState({
     nomeMedicamento: '',
     tipoMedicamento: '',
-    descricao: '',
+    dataValidade: '',
+    lote: '',
   });
 
   const navigate = useNavigate();
@@ -94,15 +95,17 @@ const Product = () => {
             <div className="product-table-header">
               <div className="column">#</div>
               <div className="column">Nome</div>
-              <div className="column">Descrição</div>
-              <div className="column">Quantidade Disponível</div>
+              <div className="column">Tipo</div>
+              <div className="column">Data de Validade</div>
+              <div className="column">Lote</div>
             </div>
             {medicamentos.map((medicamento, index) => (
               <div className="product-table-row" key={index}>
                 <div className="column">{medicamento.medicamentoid}</div>
                 <div className="column">{medicamento.nomemedicamento}</div>
-                <div className="column">{medicamento.descricao}</div>
-                <div className="column">{medicamento.quantidadedisponivel}</div>
+                <div className="column">{medicamento.tipoMedicamento}</div>
+                <div className="column">{medicamento.dataValidade}</div>
+                <div className="column">{medicamento.lote}</div>
               </div>
             ))}
           </div>
@@ -136,10 +139,19 @@ const Product = () => {
               />
               <input
                 className="input-product"
+                type="date"
+                name="dataValidade"
+                placeholder="Data de Validade"
+                value={newMedication.dataValidade}
+                onChange={handleInputChange}
+                required
+              />
+              <input
+                className="input-product"
                 type="text"
-                name="descricao"
-                placeholder="Descrição"
-                value={newMedication.descricao}
+                name="lote"
+                placeholder="Lote"
+                value={newMedication.lote}
                 onChange={handleInputChange}
                 required
               />
