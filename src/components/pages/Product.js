@@ -60,26 +60,43 @@ const Product = () => {
 
   const submitCreateMedication = async (e) => {
     e.preventDefault();
+  
     const token = localStorage.getItem('token'); // Get token from localStorage
+    if (!token) {
+      console.error('No token found. Please log in.');
+      return;
+    }
+  
+    if (!newMedication) {
+      console.error('No medication data provided.');
+      return;
+    }
+  
     try {
-      const response = await fetch('http://4.211.87.132:5000/api/products/new', { //O ENDPOINT PRECISA DE SER ATUALIZADO
+      const response = await fetch('http://4.211.87.132:5000/api/products/new', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`, // Add Authorization header
+          'Authorization': `Bearer ${token}`, // Correct template literal syntax
         },
         body: JSON.stringify(newMedication),
       });
+  
       if (!response.ok) {
-        throw new Error('Failed to create medication');
+        const errorData = await response.json();
+        console.error('Error creating medication:', errorData.message || response.statusText);
+        return;
       }
+  
       const createdMedication = await response.json();
-      setMedicamentos([...medicamentos, createdMedication]);
+      setMedicamentos((prevMedicamentos) => [...prevMedicamentos, createdMedication]); // Update the state safely
       setShowCreateForm(false); // Close the form after successful creation
+      console.log('Medication created successfully:', createdMedication);
     } catch (error) {
       console.error('Error creating medication:', error);
     }
   };
+  
 
   return (
     <div className="product-page">
