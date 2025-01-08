@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Product.css';
+import Toolbar from '../Toolbar';
 
 const Product = () => {
   const [medicamentos, setMedicamentos] = useState([]);
@@ -43,8 +44,8 @@ const Product = () => {
       }
     };
 
-    checkAdminStatus();  // Check if the user is an admin based on the JWT token
-    fetchMedicamentos();  // Fetch the medicamentos
+    checkAdminStatus(); // Check if the user is an admin based on the JWT token
+    fetchMedicamentos(); // Fetch the medicamentos
   }, []);
 
   const handleInputChange = (e) => {
@@ -52,15 +53,19 @@ const Product = () => {
     setNewMedication({ ...newMedication, [name]: value });
   };
 
-  const handleCreateMedication = async (e) => {
+  const handleCreateMedication = () => {
+    setShowCreateForm(true); // Open the pop-up
+  };
+
+  const submitCreateMedication = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');  // Get token from localStorage
+    const token = localStorage.getItem('token'); // Get token from localStorage
     try {
       const response = await fetch('http://4.211.87.132:5000/api/products/new', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Add Authorization header
+          Authorization: `Bearer ${token}`, // Add Authorization header
         },
         body: JSON.stringify(newMedication),
       });
@@ -77,6 +82,11 @@ const Product = () => {
 
   return (
     <div className="product-page">
+      <Toolbar
+        name="Medicamentos"
+        buttonLabel="Adicionar Medicamento"
+        onButtonClick={handleCreateMedication} // Call the function to open the pop-up
+      />
       <div className="product-content">
         {error && <p>{error}</p>}
         {medicamentos.length > 0 ? (
@@ -87,7 +97,6 @@ const Product = () => {
               <div className="column">Descrição</div>
               <div className="column">Quantidade Disponível</div>
             </div>
-
             {medicamentos.map((medicamento, index) => (
               <div className="product-table-row" key={index}>
                 <div className="column">{medicamento.medicamentoid}</div>
@@ -100,20 +109,13 @@ const Product = () => {
         ) : (
           <p>Não há medicamentos disponíveis.</p>
         )}
-
-        {/* Admin-specific Button */}
-        {isAdmin && (
-          <button className="admin-button" onClick={() => setShowCreateForm(!showCreateForm)}>
-            Criar Medicamento
-          </button>
-        )}
       </div>
 
       {showCreateForm && (
         <div className="popup-overlay">
           <div className="popup">
             <h3>Criar Novo Medicamento</h3>
-            <form onSubmit={handleCreateMedication}>
+            <form onSubmit={submitCreateMedication}>
               <input
                 type="text"
                 name="nomeMedicamento"
