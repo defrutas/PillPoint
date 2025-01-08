@@ -62,7 +62,7 @@ const Product = () => {
     e.preventDefault();
     const token = localStorage.getItem('token'); // Get token from localStorage
     try {
-      const response = await fetch('http://4.211.87.132:5000/api/products/new', {
+      const response = await fetch('http://4.211.87.132:5000/api/products/new', { //O ENDPOINT PRECISA DE SER ATUALIZADO
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ const Product = () => {
             {medicamentos.map((medicamento, index) => (
               <div className="product-table-row" key={index}>
                 <div className="column">{medicamento.medicamentoid}</div>
-                <div className="column">{medicamento.nomemedicamento}</div>
+                <div className="column">{medicamento.nomeMedicamento}</div>
                 <div className="column">{medicamento.tipoMedicamento}</div>
                 <div className="column">{medicamento.dataValidade}</div>
                 <div className="column">{medicamento.lote}</div>
@@ -155,7 +155,7 @@ const Product = () => {
                 onChange={handleInputChange}
                 required
               />
-              <button type="submit">Salvar</button>
+              <button onClick={submitCreateMedication}>Salvar</button>
             </form>
             <button className="close-button" onClick={() => setShowCreateForm(false)}>
               Fechar
