@@ -134,6 +134,50 @@ const Request = () => {
 
   const getEstadoName = (estadoID) => ESTADO_MAP[estadoID] || 'Desconhecido';
 
+  // Handler for approving a request
+  const approveRequest = async (requisicaoID) => {
+    try {
+      const response = await fetch(`http://4.211.87.132:5000/api/requests/approve/${requisicaoID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to approve request.');
+      
+      setRequisicoes((prevRequisicoes) =>
+        prevRequisicoes.map((req) =>
+          req.requisicaoID === requisicaoID ? { ...req, estadoID: 4 } : req
+        )
+      );
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  // Handler for canceling a request
+  const cancelRequest = async (requisicaoID) => {
+    try {
+      const response = await fetch(`http://4.211.87.132:5000/api/requests/cancel/${requisicaoID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to cancel request.');
+      
+      setRequisicoes((prevRequisicoes) =>
+        prevRequisicoes.map((req) =>
+          req.requisicaoID === requisicaoID ? { ...req, estadoID: 2 } : req
+        )
+      );
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div className="requests-page">
       <Toolbar
@@ -151,6 +195,7 @@ const Request = () => {
               <div className="column">Data Requisição</div>
               <div className="column">Data Entrega</div>
               <div className="column">Estado</div>
+              <div className="column">Ações</div>
             </div>
             {requisicoes.map((req) => (
               <div className="requests-table-row" key={req.requisicaoID}>
@@ -159,6 +204,18 @@ const Request = () => {
                 <div className="column">{new Date(req.dataRequisicao).toLocaleDateString()}</div>
                 <div className="column">{new Date(req.dataEntrega).toLocaleDateString()}</div>
                 <div className="column">{getEstadoName(req.estadoID)}</div>
+                <div className="column">
+                  {req.estadoID === 1 && (
+                    <>
+                      <button onClick={() => approveRequest(req.requisicaoID)} className="approve-button">
+                        Aprovar
+                      </button>
+                      <button onClick={() => cancelRequest(req.requisicaoID)} className="cancel-button">
+                        Cancelar
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -177,8 +234,6 @@ const Request = () => {
               <label htmlFor="dataEntrega">Data de Entrega</label>
               <input type="date" name="dataEntrega" value={newRequest.dataEntrega} onChange={handleInputChange} required />
 
-
-
               <div className="medicamento-form">
                 <label htmlFor="medicamentoID">Medicamento</label>
                 <select
@@ -194,7 +249,6 @@ const Request = () => {
                     </option>
                   ))}
                 </select>
-
 
                 <label htmlFor="servicoID">Serviço Hospitalar</label>
                 <select
@@ -220,10 +274,7 @@ const Request = () => {
                   required
                 />
               </div>
-
-
               <button type="submit">Criar Requisição</button>
-              <button type="button" onClick={() => setShowCreateForm(false)}>Cancelar</button>
             </form>
           </div>
         </div>

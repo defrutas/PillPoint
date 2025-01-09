@@ -18,13 +18,12 @@ const Product = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if the user is logged in and if the user is an admin
     const checkAdminStatus = () => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decode the JWT token
-          setIsAdmin(decodedToken.isAdmin); // Set the admin status from the token
+          const decodedToken = JSON.parse(atob(token.split('.')[1]));
+          setIsAdmin(decodedToken.isAdmin);
         } catch (error) {
           console.error('Failed to decode token', error);
         }
@@ -45,8 +44,8 @@ const Product = () => {
       }
     };
 
-    checkAdminStatus(); // Check if the user is an admin based on the JWT token
-    fetchMedicamentos(); // Fetch the medicamentos
+    checkAdminStatus();
+    fetchMedicamentos();
   }, []);
 
   const handleInputChange = (e) => {
@@ -55,58 +54,48 @@ const Product = () => {
   };
 
   const handleCreateMedication = () => {
-    setShowCreateForm(true); // Open the pop-up
+    setShowCreateForm(true);
   };
 
-const submitCreateMedication = async (e) => {
-  e.preventDefault();
-  
-  const token = localStorage.getItem('token'); // Get token from localStorage
-  if (!token) {
-    console.error('No token found. Please log in.');
-    return;
-  }
-
-  if (!newMedication) {
-    console.error('No medication data provided.');
-    return;
-  }
-
-  try {
-    const response = await fetch('http://4.211.87.132:5000/api/products/new', {
-	method: 'POST',
-	headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-  },
-  body: JSON.stringify(newMedication),
-  mode: 'cors', // Explicitly set CORS mode
-});
-
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Error creating medication:', errorData.message || response.statusText);
+  const submitCreateMedication = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No token found. Please log in.');
       return;
     }
 
-    const createdMedication = await response.json();
-    setMedicamentos((prevMedicamentos) => [...prevMedicamentos, createdMedication]); // Update the state safely
-    setShowCreateForm(false); // Close the form after successful creation
-    console.log('Medication created successfully:', createdMedication);
-  } catch (error) {
-    console.error('Error creating medication:', error);
-  }
-};
+    try {
+      const response = await fetch('http://4.211.87.132:5000/api/products/new', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(newMedication),
+      });
 
-  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error creating medication:', errorData.message || response.statusText);
+        return;
+      }
+
+      const createdMedication = await response.json();
+      setMedicamentos((prevMedicamentos) => [...prevMedicamentos, createdMedication]);
+      setShowCreateForm(false);
+      console.log('Medication created successfully:', createdMedication);
+    } catch (error) {
+      console.error('Error creating medication:', error);
+    }
+  };
 
   return (
     <div className="product-page">
       <Toolbar
         name="Medicamentos"
         buttonLabel="Adicionar Medicamento"
-        onButtonClick={handleCreateMedication} // Call the function to open the pop-up
+        onButtonClick={handleCreateMedication}
       />
       <div className="product-content">
         {error && <p>{error}</p>}
@@ -118,6 +107,7 @@ const submitCreateMedication = async (e) => {
               <div className="column">Tipo</div>
               <div className="column">Data de Validade</div>
               <div className="column">Lote</div>
+              <div className="column">Ações</div>
             </div>
             {medicamentos.map((medicamento, index) => (
               <div className="product-table-row" key={index}>
@@ -126,6 +116,10 @@ const submitCreateMedication = async (e) => {
                 <div className="column">{medicamento.tipoMedicamento}</div>
                 <div className="column">{medicamento.dataValidade}</div>
                 <div className="column">{medicamento.lote}</div>
+                <div className="column">
+                  <button className="edit-button">Editar</button>
+                  <button className="delete-button">Apagar</button>
+                </div>
               </div>
             ))}
           </div>
@@ -138,45 +132,45 @@ const submitCreateMedication = async (e) => {
         <div className="popup-overlay">
           <div className="popup-products">
             <h3>Criar Novo Medicamento</h3>
-			<form className="products-form" onSubmit={submitCreateMedication}>
-			  <input
-				className="input-product"
-				type="text"
-				name="nomeMedicamento"
-				placeholder="Nome do Medicamento"
-				value={newMedication.nomeMedicamento}
-				onChange={handleInputChange}
-				required
-			  />
-			  <input
-				className="input-product"
-				type="text"
-				name="tipoMedicamento"
-				placeholder="Tipo do Medicamento"
-				value={newMedication.tipoMedicamento}
-				onChange={handleInputChange}
-				required
-			  />
-			  <input
-				className="input-product"
-				type="date"
-				name="dataValidade"
-				placeholder="Data de Validade"
-				value={newMedication.dataValidade}
-				onChange={handleInputChange}
-				required
-			  />
-			  <input
-				className="input-product"
-				type="text"
-				name="lote"
-				placeholder="Lote"
-				value={newMedication.lote}
-				onChange={handleInputChange}
-				required
-			  />
-			  <button type="submit">Salvar</button> {/* Only "type='submit'" here */}
-			</form>
+            <form className="products-form" onSubmit={submitCreateMedication}>
+              <input
+                className="input-product"
+                type="text"
+                name="nomeMedicamento"
+                placeholder="Nome do Medicamento"
+                value={newMedication.nomeMedicamento}
+                onChange={handleInputChange}
+                required
+              />
+              <input
+                className="input-product"
+                type="text"
+                name="tipoMedicamento"
+                placeholder="Tipo do Medicamento"
+                value={newMedication.tipoMedicamento}
+                onChange={handleInputChange}
+                required
+              />
+              <input
+                className="input-product"
+                type="date"
+                name="dataValidade"
+                placeholder="Data de Validade"
+                value={newMedication.dataValidade}
+                onChange={handleInputChange}
+                required
+              />
+              <input
+                className="input-product"
+                type="text"
+                name="lote"
+                placeholder="Lote"
+                value={newMedication.lote}
+                onChange={handleInputChange}
+                required
+              />
+              <button type="submit">Salvar</button>
+            </form>
             <button className="close-button" onClick={() => setShowCreateForm(false)}>
               Fechar
             </button>
