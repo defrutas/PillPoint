@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import './Request.css';
 import Toolbar from '../Toolbar';
 
+const ESTADO_MAP = {
+  1: 'Pendente',
+  2: 'Cancelado',
+  3: 'Aguardar Envio',
+  4: 'Concluído',
+};
+
 const Request = () => {
   const [requisicoes, setRequisicoes] = useState([]);
   const [error, setError] = useState('');
@@ -10,53 +17,57 @@ const Request = () => {
     dataRequisicao: new Date().toISOString().split('T')[0],
     dataEntrega: '',
     estadoID: 1,
-    adminID: null,  // Set to null for the frontend to send a nullable value
+    adminID: null,
     aprovadoPorAdministrador: 0,
     requisicaoCompleta: 0,
-    medicamentos: [
-      {
-        medicamentoID: '',  // Make sure this is the ID
-        quantidade: '',
-      },
-    ],
+    medicamentos: [{ medicamentoID: '', quantidade: '' }],
+    servicoID: '',
   });
 
   const [medicamentosList, setMedicamentosList] = useState([]);
+  const [servicosList, setServicosList] = useState([]);
 
   useEffect(() => {
     const fetchRequisicoes = async () => {
       try {
         const response = await fetch('http://4.211.87.132:5000/api/requests/all');
-        if (!response.ok) {
-          throw new Error('Failed to fetch requisicoes');
-        }
+        if (!response.ok) throw new Error('Failed to fetch requisicoes');
         const data = await response.json();
         setRequisicoes(data);
       } catch (err) {
-        setError('Failed to load requisicoes data');
+        setError('Failed to load requisicoes data.');
       }
     };
 
     const fetchMedicamentos = async () => {
       try {
         const response = await fetch('http://4.211.87.132:5000/api/products/all');
-        if (!response.ok) {
-          throw new Error('Failed to fetch medicamentos');
-        }
+        if (!response.ok) throw new Error('Failed to fetch medicamentos');
         const data = await response.json();
-        setMedicamentosList(data); // Store the fetched list
+        setMedicamentosList(data);
       } catch (err) {
-        setError('Failed to load medicamentos data');
+        setError('Failed to load medicamentos data.');
+      }
+    };
+
+    const fetchServicos = async () => {
+      try {
+        const response = await fetch('http://4.211.87.132:5000/api/services/all');
+        if (!response.ok) throw new Error('Failed to fetch serviços hospitalares');
+        const data = await response.json();
+        setServicosList(data.map((servico) => servico.nomeServico));
+      } catch (err) {
+        setError('Failed to load serviços hospitalares.');
       }
     };
 
     fetchRequisicoes();
     fetchMedicamentos();
+    fetchServicos();
 
-    const currentDate = new Date().toISOString().split('T')[0];
     setNewRequest((prevState) => ({
       ...prevState,
-      dataRequisicao: currentDate,
+      dataRequisicao: new Date().toISOString().split('T')[0],
     }));
   }, []);
 
@@ -69,7 +80,7 @@ const Request = () => {
         medicamentos: [
           {
             ...prevState.medicamentos[0],
-            [name]: value,  // Correctly set the medicamentoID or quantidade in the state
+            [name]: value,
           },
         ],
       }));
@@ -82,28 +93,20 @@ const Request = () => {
   };
 
   const handleCreateRequest = () => {
-    setShowCreateForm(true); // Open the form
+    setShowCreateForm(true);
   };
 
   const submitCreateRequest = async (e) => {
     e.preventDefault();
 
     try {
-      const token = localStorage.getItem('authToken');  // Ensure the token exists in localStorage
-      console.log("Token in localStorage:", token);  // Verify if the token is retrieved
-
-      if (!token) {
-        throw new Error('No authentication token available.');
-      }
+      const token = localStorage.getItem('authToken');
+      if (!token) throw new Error('No authentication token available.');
 
       const payload = {
         ...newRequest,
-        estadoID: 1, // Explicitly setting estadoID to 1
-        adminID: null, // Sending null for adminID
-        aprovadoPorAdministrador: 0, // Default value
-        requisicaoCompleta: 0, // Default value
         medicamentos: newRequest.medicamentos.map((med) => ({
-          medicamentoID: med.medicamentoID,  // Send the correct medicamentoID (ID, not the name)
+          medicamentoID: med.medicamentoID,
           quantidade: med.quantidade,
         })),
         dataRequisicao: new Date(newRequest.dataRequisicao).toISOString(),
@@ -114,14 +117,12 @@ const Request = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,  // Make sure the JWT token is included here
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to create request');
-      }
+      if (!response.ok) throw new Error('Failed to create request.');
 
       const createdRequest = await response.json();
       setRequisicoes((prevRequisicoes) => [...prevRequisicoes, createdRequest]);
@@ -130,6 +131,8 @@ const Request = () => {
       setError(err.message);
     }
   };
+
+  const getEstadoName = (estadoID) => ESTADO_MAP[estadoID] || 'Desconhecido';
 
   return (
     <div className="requests-page">
@@ -144,18 +147,18 @@ const Request = () => {
           <div className="requests-table-container">
             <div className="requests-table-header">
               <div className="column">ID</div>
+              <div className="column">Nome Serviço</div>
               <div className="column">Data Requisição</div>
               <div className="column">Data Entrega</div>
-              <div className="column">Medicamento</div>
-              <div className="column">Quantidade</div>
+              <div className="column">Estado</div>
             </div>
             {requisicoes.map((req) => (
               <div className="requests-table-row" key={req.requisicaoID}>
                 <div className="column">{req.requisicaoID}</div>
+                <div className="column">{req.nomeServico}</div>
                 <div className="column">{new Date(req.dataRequisicao).toLocaleDateString()}</div>
                 <div className="column">{new Date(req.dataEntrega).toLocaleDateString()}</div>
-                <div className="column">{req.medicamentoID}</div>
-                <div className="column">{req.quantidade}</div>
+                <div className="column">{getEstadoName(req.estadoID)}</div>
               </div>
             ))}
           </div>
@@ -168,28 +171,57 @@ const Request = () => {
         <div className="modal-overlay-request" onClick={() => setShowCreateForm(false)}>
           <div className="modal-request" onClick={(e) => e.stopPropagation()}>
             <form className="request-form-request" onSubmit={submitCreateRequest}>
-              <input type="hidden" name="estadoID" value="2" />
-              <input type="hidden" name="adminID" value={newRequest.adminID} />
-              <input type="hidden" name="aprovadoPorAdministrador" value={newRequest.aprovadoPorAdministrador} />
-              <input type="hidden" name="requisicaoCompleta" value={newRequest.requisicaoCompleta} />
-
               <label htmlFor="dataRequisicao">Data da Requisição</label>
               <input type="date" name="dataRequisicao" value={newRequest.dataRequisicao} disabled />
 
               <label htmlFor="dataEntrega">Data de Entrega</label>
               <input type="date" name="dataEntrega" value={newRequest.dataEntrega} onChange={handleInputChange} required />
 
+
+
               <div className="medicamento-form">
                 <label htmlFor="medicamentoID">Medicamento</label>
-                <select name="medicamentoID" value={newRequest.medicamentos[0]?.medicamentoID || ''} onChange={handleInputChange} required>
+                <select
+                  name="medicamentoID"
+                  value={newRequest.medicamentos[0]?.medicamentoID || ''}
+                  onChange={handleInputChange}
+                  required
+                >
                   <option value="" disabled>Selecione um Medicamento</option>
                   {medicamentosList.map((med) => (
-                    <option key={med.medicamentoID} value={med.medicamentoID}>{med.nomeMedicamento}</option>
+                    <option key={med.medicamentoID} value={med.medicamentoID}>
+                      {med.nomeMedicamento}
+                    </option>
                   ))}
                 </select>
 
-                <input type="number" name="quantidade" value={newRequest.medicamentos[0]?.quantidade || ''} onChange={handleInputChange} placeholder="Quantidade" required />
+
+                <label htmlFor="servicoID">Serviço Hospitalar</label>
+                <select
+                  name="servicoID"
+                  value={newRequest.servicoID}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="" disabled>Selecione um Serviço</option>
+                  {servicosList.map((servico, index) => (
+                    <option key={index} value={servico}>
+                      {servico}
+                    </option>
+                  ))}
+                </select>
+
+                <input
+                  type="number"
+                  name="quantidade"
+                  value={newRequest.medicamentos[0]?.quantidade || ''}
+                  onChange={handleInputChange}
+                  placeholder="Quantidade"
+                  required
+                />
               </div>
+
+
               <button type="submit">Criar Requisição</button>
               <button type="button" onClick={() => setShowCreateForm(false)}>Cancelar</button>
             </form>
