@@ -26,6 +26,7 @@ const Request = () => {
 
   const [medicamentosList, setMedicamentosList] = useState([]);
   const [servicosList, setServicosList] = useState([]);
+  const [availableServicos, setAvailableServicos] = useState([]);
 
   useEffect(() => {
     const fetchRequisicoes = async () => {
@@ -64,12 +65,31 @@ const Request = () => {
     fetchRequisicoes();
     fetchMedicamentos();
     fetchServicos();
-
-    setNewRequest((prevState) => ({
-      ...prevState,
-      dataRequisicao: new Date().toISOString().split('T')[0],
-    }));
   }, []);
+
+  // Fetch available services when medicamento is selected
+// Fetch available services when medicamento is selected
+useEffect(() => {
+  if (newRequest.medicamentos[0]?.medicamentoID) {
+    const fetchAvailableServicos = async () => {
+      try {
+        const medicamentoID = newRequest.medicamentos[0].medicamentoID;
+        const response = await fetch(`http://4.211.87.132:5000/api/requests/${medicamentoID}/servicos`);
+        if (!response.ok) throw new Error('Failed to fetch available services for this medicamento');
+        const data = await response.json();
+        setAvailableServicos(data); // Update available services
+      } catch (err) {
+        setError('Failed to load available services.');
+      }
+    };
+
+    fetchAvailableServicos();
+  } else {
+    setAvailableServicos([]); // Reset services if no medicamento selected
+  }
+}, [newRequest.medicamentos[0]?.medicamentoID]); // Dependency on medicamentoID
+
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -256,13 +276,18 @@ const Request = () => {
                   value={newRequest.servicoID}
                   onChange={handleInputChange}
                   required
+                  disabled={availableServicos.length === 0}
                 >
                   <option value="" disabled>Selecione um Serviço</option>
-                  {servicosList.map((servico, index) => (
-                    <option key={index} value={servico}>
-                      {servico}
-                    </option>
-                  ))}
+                  {availableServicos.length > 0 ? (
+                    availableServicos.map((servico) => (
+                      <option key={servico.servicoID} value={servico.servicoID}>
+                        {servico.nomeServico}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="" disabled>Nenhum serviço disponível para este medicamento</option>
+                  )}
                 </select>
 
                 <input
