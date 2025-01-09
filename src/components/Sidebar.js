@@ -57,7 +57,7 @@ const Sidebar = () => {
         Página Inicial
       </Link>
       <Link to="/services" className="sidebar-link">
-        Serviços de Saúde
+        Serviços Hospitalares
       </Link>
       <Link to="/product" className="sidebar-link">
         Medicamentos
