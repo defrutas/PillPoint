@@ -1,218 +1,166 @@
-// Request.js
 import React, { useState, useEffect } from 'react';
-import Toolbar from '../Toolbar'; // Toolbar component
 import './Request.css';
+import Toolbar from '../Toolbar';
 
 const Request = () => {
   const [requisicoes, setRequisicoes] = useState([]);
   const [error, setError] = useState('');
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
-    estadoID: '',
-    profissionalID: '',
-    adminID: '',
-    aprovadoPorAdministrador: false,
-    requisicaoCompleta: false,
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newRequest, setNewRequest] = useState({
     dataRequisicao: '',
     dataEntrega: '',
-    medicamentos: [],
+    medicamentoID: '',
+    quantidade: '',
   });
-  const [medicamento, setMedicamento] = useState({ medicamentoID: '', quantidade: '' });
+
+  // Assuming medicamentosList is fetched elsewhere in your app
+  const medicamentosList = [
+    { medicamentoID: 'med1', nomeMedicamento: 'Medicamento 1' },
+    { medicamentoID: 'med2', nomeMedicamento: 'Medicamento 2' },
+  ];
 
   useEffect(() => {
     const fetchRequisicoes = async () => {
       try {
-        const allRequests = [];
-        for (let i = 1; i <= 10; i++) {
-          try {
-            const response = await fetch(`http://4.211.87.132:5000/api/requests/list/${i}`, {
-              method: 'GET',
-              headers: { 'Content-Type': 'application/json' },
-              mode: 'cors',
-            });
-            if (!response.ok) {
-              throw new Error(`Failed to fetch data for service ID: ${i}`);
-            }
-            const data = await response.json();
-            allRequests.push(...data);
-          } catch (err) {
-            console.error(err);
-          }
+        const response = await fetch('http://4.211.87.132:5000/api/requests/all');
+        if (!response.ok) {
+          throw new Error('Failed to fetch requisicoes');
         }
-        setRequisicoes(allRequests);
+        const data = await response.json();
+        setRequisicoes(data);
       } catch (err) {
         setError('Failed to load requisicoes data');
       }
     };
 
     fetchRequisicoes();
+
+    const currentDate = new Date().toISOString().split('T')[0];
+    setNewRequest((prevState) => ({
+      ...prevState,
+      dataRequisicao: currentDate,
+    }));
   }, []);
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value,
-    });
-  };
-
-  const handleMedicamentoChange = (e) => {
     const { name, value } = e.target;
-    setMedicamento({
-      ...medicamento,
-      [name]: value,
-    });
+    setNewRequest({ ...newRequest, [name]: value });
   };
 
-  const addMedicamento = () => {
-    if (medicamento.medicamentoID && medicamento.quantidade) {
-      setFormData({
-        ...formData,
-        medicamentos: [...formData.medicamentos, medicamento],
-      });
-      setMedicamento({ medicamentoID: '', quantidade: '' }); // Reset medicamento form
-    }
+  const handleCreateRequest = () => {
+    setShowCreateForm(true); // Open the form
   };
 
-  const handleFormSubmit = async (e) => {
+  const submitCreateRequest = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://4.211.87.132:5000/api/request/create', {
+      const response = await fetch('http://4.211.87.132:5000/api/requests/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(newRequest),
       });
       if (!response.ok) {
         throw new Error('Failed to create request');
       }
-      const newRequest = await response.json();
-      setRequisicoes([...requisicoes, newRequest]);
-      setShowForm(false);
-      setFormData({
-        estadoID: '',
-        profissionalID: '',
-        adminID: '',
-        aprovadoPorAdministrador: false,
-        requisicaoCompleta: false,
-        dataRequisicao: '',
-        dataEntrega: '',
-        medicamentos: [],
-      });
+      const createdRequest = await response.json();
+      setRequisicoes((prevRequisicoes) => [...prevRequisicoes, createdRequest]);
+      setShowCreateForm(false);
     } catch (err) {
       setError(err.message);
     }
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    if (isNaN(date)) {
-      return 'Data Inválida';
-    }
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
   };
 
   return (
     <div className="requests-page">
       <Toolbar
         name="Requisições"
-        buttonLabel="Nova Requisição"
-        onButtonClick={() => setShowForm(!showForm)}
+        buttonLabel="Criar Requisição"
+        onButtonClick={handleCreateRequest}
       />
       <div className="requests-content">
         {error && <p>{error}</p>}
-        {showForm && (
-          <div className="modal-overlay-request" onClick={() => setShowForm(false)}>
-            <div className="modal-request" onClick={(e) => e.stopPropagation()}>
-              <form className="request-form-request" onSubmit={handleFormSubmit}>
-                <input //estado
-                  type="text"
-                  name="estadoID"
-                  placeholder="Estado ID"
-                  value={formData.estadoID}
-                  onChange={handleInputChange}
-                  required
-                />
-                <input // ir buscar a data do pc
-                  type="date"
-                  name="dataRequisicao"
-                  value={formData.dataRequisicao}
-                  onChange={handleInputChange}
-                  required
-                />
-                <input // por definição 0
-                  type="date"
-                  name="dataEntrega"
-                  value={formData.dataEntrega}
-                  onChange={handleInputChange}
-                  required
-                />
-
-                <div className="medicamento-form">
-                  <input  
-                    type="text"
-                    name="medicamentoID"
-                    value={medicamento.medicamentoID}
-                    onChange={handleMedicamentoChange}
-                    placeholder="Medicamento ID"
-                    required
-                  />
-                  <input
-                    type="number"
-                    name="quantidade"
-                    value={medicamento.quantidade}
-                    onChange={handleMedicamentoChange}
-                    placeholder="Quantidade"
-                    required
-                  />
-                  <button type="button" onClick={addMedicamento}>
-                    Adicionar Medicamento
-                  </button>
-                  <button type="button" onClick={() => setShowForm(false)}>
-                    Cancelar
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
         {requisicoes.length > 0 ? (
           <div className="requests-table-container">
             <div className="requests-table-header">
-              <div className="column">#</div>
-              <div className="column">Profissional</div>
-              <div className="column">Data da Requisição</div>
-              <div className="column">Aprovado</div>
-              <div className="column">Data de Entrega</div>
-              <div className="column">Medicamentos</div>
+              <div className="column">ID</div>
+              <div className="column">Data Requisição</div>
+              <div className="column">Data Entrega</div>
+              <div className="column">Medicamento</div>
+              <div className="column">Quantidade</div>
             </div>
-            {requisicoes.map((requisicao, index) => (
-              <div className="requests-table-row" key={index}>
-                <div className="column">{requisicao.requisicaoid}</div>
-                <div className="column">
-                  {requisicao.nomeproprio} {requisicao.ultimonome}
-                </div>
-                <div className="column">{formatDate(requisicao.datarequisicao)}</div>
-                <div className="column">{requisicao.aprovadoporadministrador ? 'Sim' : 'Não'}</div>
-                <div className="column">{formatDate(requisicao.dataentrega)}</div>
-                <div className="column">
-                  {requisicao.medicamentos && requisicao.medicamentos.length > 0
-                    ? requisicao.medicamentos.map((med) => (
-                        <div key={med.medicamentoID}>
-                          {med.nomeMedicamento} - {med.quantidade}
-                        </div>
-                      ))
-                    : 'Nenhum medicamento'}
-                </div>
+            {requisicoes.map((req) => (
+              <div className="requests-table-row" key={req.requisicaoID}>
+                <div className="column">{req.requisicaoID}</div>
+                <div className="column">{new Date(req.dataRequisicao).toLocaleDateString()}</div>
+                <div className="column">{new Date(req.dataEntrega).toLocaleDateString()}</div>
+                <div className="column">{req.medicamentoID}</div>
+                <div className="column">{req.quantidade}</div>
               </div>
             ))}
           </div>
         ) : (
-          <p>Não há requisições para exibir.</p>
+          <p>Não há requisições disponíveis.</p>
         )}
       </div>
+
+      {showCreateForm && (
+        <div className="modal-overlay-request" onClick={() => setShowCreateForm(false)}>
+          <div className="modal-request" onClick={(e) => e.stopPropagation()}>
+            <form className="request-form-request" onSubmit={submitCreateRequest}>
+              <input type="hidden" name="estadoID" value="2" />
+              
+              <label htmlFor="dataRequisicao">Data da Requisição</label>
+              <input
+                type="date"
+                name="dataRequisicao"
+                value={newRequest.dataRequisicao}
+                disabled
+              />
+              
+              <label htmlFor="dataEntrega">Data de Entrega</label>
+              <input
+                type="date"
+                name="dataEntrega"
+                value={newRequest.dataEntrega}
+                onChange={handleInputChange}
+                required
+              />
+              
+              <div className="medicamento-form">
+                <label htmlFor="medicamentoID">Medicamento</label>
+                <select
+                  name="medicamentoID"
+                  value={newRequest.medicamentoID}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="" disabled>
+                    Selecione um Medicamento
+                  </option>
+                  {medicamentosList.map((med) => (
+                    <option key={med.medicamentoID} value={med.medicamentoID}>
+                      {med.nomeMedicamento}
+                    </option>
+                  ))}
+                </select>
+
+                <input
+                  type="number"
+                  name="quantidade"
+                  value={newRequest.quantidade}
+                  onChange={handleInputChange}
+                  placeholder="Quantidade"
+                  required
+                />
+              </div>
+              <button type="submit">Criar Requisição</button>
+              <button type="button" onClick={() => setShowCreateForm(false)}>
+                Cancelar
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
