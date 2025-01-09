@@ -12,12 +12,7 @@ const Request = () => {
     medicamentoID: '',
     quantidade: '',
   });
-
-  // Assuming medicamentosList is fetched elsewhere in your app
-  const medicamentosList = [
-    { medicamentoID: 'med1', nomeMedicamento: 'Medicamento 1' },
-    { medicamentoID: 'med2', nomeMedicamento: 'Medicamento 2' },
-  ];
+  const [medicamentosList, setMedicamentosList] = useState([]);
 
   useEffect(() => {
     const fetchRequisicoes = async () => {
@@ -33,7 +28,21 @@ const Request = () => {
       }
     };
 
+    const fetchMedicamentos = async () => {
+      try {
+        const response = await fetch('http://4.211.87.132:5000/api/products/all');
+        if (!response.ok) {
+          throw new Error('Failed to fetch medicamentos');
+        }
+        const data = await response.json();
+        setMedicamentosList(data); // Store the fetched list
+      } catch (err) {
+        setError('Failed to load medicamentos data');
+      }
+    };
+
     fetchRequisicoes();
+    fetchMedicamentos();
 
     const currentDate = new Date().toISOString().split('T')[0];
     setNewRequest((prevState) => ({
