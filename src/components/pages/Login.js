@@ -40,9 +40,9 @@ const LoginPage = () => {
 
           // Navigate based on user role
           if (decoded.isAdmin) {
-            navigate('/admin-dashboard');  // Admin-specific route
+            navigate('/home');  // Admin-specific route
           } else {
-            navigate('/user-dashboard');  // Regular user route
+            navigate('/home');  // Regular user route
           }
         } else {
           setError(data?.message || 'Token not received in response.');

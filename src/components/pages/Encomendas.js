@@ -5,6 +5,7 @@ import "./Encomendas.css";
 const Encomendas = () => {
   const [userName, setUserName] = useState("");
   const [encomendas, setEncomendas] = useState([]);
+  const [fornecedores, setFornecedores] = useState([]);
   const [error, setError] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newEncomenda, setNewEncomenda] = useState({
@@ -12,7 +13,7 @@ const Encomendas = () => {
     fornecedorID: "",
     quantidadeEnviada: "",
     dataEntrega: "",
-    createdBy: "", // Default field for the user's name
+    createdBy: "",
   });
 
   const fetchEncomendas = async () => {
@@ -27,6 +28,18 @@ const Encomendas = () => {
     }
   };
 
+  const fetchFornecedores = async () => {
+    try {
+      const response = await fetch("http://4.211.87.132:5000/api/supplier/all");
+      if (!response.ok) throw new Error("Failed to fetch fornecedores");
+      const data = await response.json();
+      setFornecedores(data.recordset || []);
+    } catch (error) {
+      setError("Failed to load fornecedores data");
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     // Retrieve the user's name from local storage
     const firstName = localStorage.getItem("firstName");
@@ -34,12 +47,13 @@ const Encomendas = () => {
     if (firstName && lastName) {
       const fullName = `${firstName} ${lastName}`;
       setUserName(fullName);
-      setNewEncomenda((prev) => ({ ...prev, createdBy: fullName })); // Set as default
+      setNewEncomenda((prev) => ({ ...prev, createdBy: fullName }));
     }
   }, []);
 
   useEffect(() => {
     fetchEncomendas();
+    fetchFornecedores();
   }, []);
 
   const handleInputChange = (e) => {
@@ -169,14 +183,20 @@ const Encomendas = () => {
                 value={newEncomenda.dataEntrega}
                 onChange={handleInputChange}
               />
-              <label htmlFor="nomeFornecedor">Fornecedor</label>
-              <input
-                type="text"
-                name="nomeFornecedor"
-                value={newEncomenda.nomeFornecedor}
+              <label htmlFor="fornecedorID">Fornecedor</label>
+              <select
+                name="fornecedorID"
+                value={newEncomenda.fornecedorID}
                 onChange={handleInputChange}
                 required
-              />
+              >
+                <option value="">Selecione um fornecedor</option>
+                {fornecedores.map((fornecedor) => (
+                  <option key={fornecedor.fornecedorID} value={fornecedor.fornecedorID}>
+                    {fornecedor.nomeFornecedor}
+                  </option>
+                ))}
+              </select>
               <label htmlFor="quantidadeEnviada">Quantidade</label>
               <input
                 type="number"

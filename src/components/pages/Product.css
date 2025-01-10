@@ -121,6 +121,34 @@
   background-color: #f9f9f9;
 }
 
+.edit-button{
+  margin-right: 1em;
+}
+
+.estado-pendente {
+  background-color: yellow;
+  color: black;
+  font-weight: bold;
+}
+
+.estado-cancelado {
+  background-color: red;
+  color: white;
+  font-weight: bold;
+}
+
+.estado-concluido {
+  background-color: green;
+  color: white;
+  font-weight: bold;
+}
+
+/* Optional: Add a border or padding for better visuals */
+.estado {
+  padding: 5px;
+  border-radius: 4px;
+  text-align: center;
+}
 
 /* Responsive Table */
 @media (max-width: 768px) {

@@ -48,7 +48,7 @@ const Alerts = () => {
 
   return (
     <div className="alerts-page">
-      <Toolbar name="Alerts" />
+      <Toolbar name="Alertas" />
       <div className="alerts-content">
         {error && <p className="error-message">{error}</p>}
 

@@ -24,6 +24,20 @@ const Request = () => {
     servicoID: "",
   });
 
+  const getEstadoClass = (estadoID) => {
+    switch (estadoID) {
+      case 1: // Pendente
+        return "estado-pendente";
+      case 2: // Cancelado
+        return "estado-cancelado";
+      case 3: // Aguardar Envio
+      case 4: // Concluído
+        return "estado-concluido";
+      default:
+        return "";
+    }
+  };
+
   const [medicamentosList, setMedicamentosList] = useState([]);
   const [servicosList, setServicosList] = useState([]);
   const [availableServicos, setAvailableServicos] = useState([]);
@@ -128,11 +142,11 @@ const Request = () => {
 
   const submitCreateRequest = async (e) => {
     e.preventDefault();
-  
+
     try {
       const token = localStorage.getItem("authToken");
       if (!token) throw new Error("No authentication token available.");
-  
+
       // Create the payload by mapping servicoID to servicoHospitalarAlvoID
       const payload = {
         ...newRequest,
@@ -144,10 +158,10 @@ const Request = () => {
         dataRequisicao: new Date(newRequest.dataRequisicao).toISOString(),
         dataEntrega: new Date(newRequest.dataEntrega).toISOString(),
       };
-  
+
       // Remove the original servicoID from the payload
       delete payload.servicoID;
-  
+
       const response = await fetch(
         "http://4.211.87.132:5000/api/requests/create",
         {
@@ -159,9 +173,9 @@ const Request = () => {
           body: JSON.stringify(payload),
         }
       );
-  
+
       if (!response.ok) throw new Error("Failed to create request.");
-  
+
       const createdRequest = await response.json();
       setRequisicoes((prevRequisicoes) => [...prevRequisicoes, createdRequest]);
       setShowCreateForm(false);
@@ -169,7 +183,6 @@ const Request = () => {
       setError(err.message);
     }
   };
-  
 
   const getEstadoName = (estadoID) => ESTADO_MAP[estadoID] || "Desconhecido";
 
@@ -253,24 +266,12 @@ const Request = () => {
                   {new Date(req.dataEntrega).toLocaleDateString()}
                 </div>
                 <div className="column">{getEstadoName(req.estadoID)}</div>
-                <div className="column">
-                  {req.estadoID === 1 && (
-                    <>
-                      <button
-                        onClick={() => approveRequest(req.requisicaoID)}
-                        className="approve-button"
-                      >
-                        Aprovar
-                      </button>
-                      <button
-                        onClick={() => cancelRequest(req.requisicaoID)}
-                        className="cancel-button"
-                      >
-                        Cancelar
-                      </button>
-                    </>
-                  )}
+                <div
+                  className={`column estado ${getEstadoClass(req.estadoID)}`}
+                >
+                  {getEstadoName(req.estadoID)}
                 </div>
+                ;
               </div>
             ))}
           </div>
@@ -296,7 +297,6 @@ const Request = () => {
                 value={newRequest.dataRequisicao}
                 disabled
               />
-
               <label htmlFor="dataEntrega">Data de Entrega</label>
               <input
                 type="date"
@@ -305,7 +305,6 @@ const Request = () => {
                 onChange={handleInputChange}
                 required
               />
-
               <div className="medicamento-form">
                 <label htmlFor="medicamentoID">Medicamento</label>
                 <select
@@ -348,6 +347,7 @@ const Request = () => {
                   )}
                 </select>
 
+                <label htmlFor="Quantidade">Quantidade</label>
                 <input
                   type="number"
                   name="quantidade"
