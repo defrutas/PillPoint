@@ -105,15 +105,17 @@ const Product = () => {
               <div className="column">#</div>
               <div className="column">Nome</div>
               <div className="column">Tipo</div>
+              <div className="column">Quantidade</div>
               <div className="column">Data de Validade</div>
               <div className="column">Lote</div>
               <div className="column">Ações</div>
             </div>
             {medicamentos.map((medicamento, index) => (
               <div className="product-table-row" key={index}>
-                <div className="column">{medicamento.medicamentoid}</div>
+                <div className="column">{medicamento.medicamentoID}</div>
                 <div className="column">{medicamento.nomeMedicamento}</div>
                 <div className="column">{medicamento.tipoMedicamento}</div>
+                <div className="column">{medicamento.stockGlobal}</div>
                 <div className="column">{medicamento.dataValidade}</div>
                 <div className="column">{medicamento.lote}</div>
                 <div className="column">
