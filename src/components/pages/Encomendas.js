@@ -57,15 +57,15 @@ const Encomendas = () => {
             {/* Table Rows */}
             {encomendas.map((encomenda, index) => (
               <div className="encomendas-table-row" key={index}>
-                <div className="column-id">{encomenda.encomendaid}</div>
+                <div className="column-id">{encomenda.encomendaID}</div>
                 <div className="column-client">
-                  {encomenda.nomeproprio} {encomenda.ultimonome}
+                  {encomenda.profissionalNome} {encomenda.profissionalUltimoNome}
                 </div>
-                <div className="column-supplier">{encomenda.nomefornecedor}</div>
+                <div className="column-supplier">{encomenda.nomeFornecedor}</div>
                 <div className="column-date">
-                  {new Date(encomenda.dataencomenda).toLocaleDateString()}
+                  {new Date(encomenda.dataEncomenda).toLocaleDateString()}
                 </div>
-                <div className="column-quantity">{encomenda.quantidadeenviada}</div>
+                <div className="column-quantity">{encomenda.quantidadeEnviada}</div>
                 {/* <div className="column-complete">
                   {encomenda.encomendacompleta ? 'Yes' : 'No'}
                 </div> */}
@@ -77,8 +77,8 @@ const Encomendas = () => {
                     : 'No'}
                 </div> */}
                 <div className="column-delivery-date">
-                  {encomenda.dataentrega
-                    ? new Date(encomenda.dataentrega).toLocaleDateString()
+                  {encomenda.dataEntrega
+                    ? new Date(encomenda.dataEntrega).toLocaleDateString()
                     : 'N/A'}
                 </div>
                 <div
