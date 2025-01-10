@@ -3,102 +3,16 @@ import Toolbar from "../Toolbar"; // Toolbar component
 import "./Alerts.css"; // Import the CSS file
 
 const Alerts = () => {
-  const [medications, setMedications] = useState("");
-  const [orders, setOrders] = useState("");
-  const [requests, setRequests] = useState("");
+  const [medications, setMedications] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [requests, setRequests] = useState([]);
   const [error, setError] = useState("");
-
-  const handleConfirmRequest = async (id) => {
-    try {
-      const response = await fetch(
-        `http://4.211.87.132:5000/api/request/approve/${id}/confirm`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ aprovadoporadministrador: true }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to confirm request in the database.");
-      }
-
-      setRequests((prevRequests) =>
-        prevRequests.map((request) =>
-          request.requisicaoid === id
-            ? { ...request, aprovadoporadministrador: true }
-            : request
-        )
-      );
-
-      console.log(`Request ${id} confirmed and updated in the database.`);
-    } catch (error) {
-      console.error("Error confirming request:", error);
-    }
-  };
-
-  const handleConfirmOrder = async (id) => {
-    try {
-      const response = await fetch(
-        `http://4.211.87.132:5000/api/orders/approve/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ aprovadoporadministrador: true }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to approve order in the database.");
-      }
-
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order.encomendaid === id
-            ? { ...order, aprovadoporadministrador: true }
-            : order
-        )
-      );
-
-      console.log(`Order ${id} approved and updated in the database.`);
-    } catch (error) {
-      console.error("Error approving order:", error);
-    }
-  };
-
-  const handleCreateOrder = async (medicationId) => {
-    try {
-      const response = await fetch(
-        `http://4.211.87.132:5000/api/orders/create`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ medicamentoid: medicationId }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to create a new order.");
-      }
-
-      const newOrder = await response.json();
-
-      setOrders((prevOrders) => [...prevOrders, newOrder]);
-      console.log(`Order created for medication ID ${medicationId}.`);
-    } catch (error) {
-      console.error("Error creating new order:", error);
-    }
-  };
+  const [services, setServices] = useState({}); // To store service names by ID
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Fetch medications data
         const response = await fetch("http://4.211.87.132:5000/api/notifications");
         if (!response.ok) {
           throw new Error("Failed to fetch data");
@@ -106,10 +20,24 @@ const Alerts = () => {
         const data = await response.json();
         console.log("API Response:", data);
 
-        // If the response contains messages, set them to the respective states
-        setMedications(data.medications || "");
-        setOrders(data.orders || "");
-        setRequests(data.requests || "");
+        setMedications(data.medications || []);
+        setOrders(data.incompleteOrders || []);
+        setRequests(data.requests || []);
+
+        // Fetch services data (this is just an example URL)
+        const serviceResponse = await fetch("http://4.211.87.132:5000/api/services/all");
+        if (!serviceResponse.ok) {
+          throw new Error("Failed to fetch services");
+        }
+        const serviceData = await serviceResponse.json();
+
+        // Create a mapping of serviceID to serviceName
+        const serviceMap = serviceData.reduce((acc, service) => {
+          acc[service.servicoID] = service.nomeServico; // Assuming servicoID and nomeServico exist
+          return acc;
+        }, {});
+
+        setServices(serviceMap);
       } catch (error) {
         setError("Failed to load data");
         console.error(error);
@@ -126,21 +54,25 @@ const Alerts = () => {
 
         {/* Medications Section */}
         <section className="alerts-section">
-          <h2>Medicamentos</h2>
-          {medications === "All medications are above the minimum quantity." ? (
-            <p>{medications}</p>
-          ) : medications ? (
+          <h2>Medicamentos Em Falta</h2>
+          {medications.length > 0 ? (
             <div className="alerts-table-container">
               <div className="alerts-table-header">
-                <div className="column-id">ID</div>
-                <div className="column-name">Name</div>
-                <div className="column-description">Descricao</div>
-                <div className="column-available">Disponivel</div>
-                <div className="column-minimum">Minimo</div>
-                <div className="column-action">Ação</div>
+                <div className="column">Medicamento</div>
+                <div className="column">Serviço Hospitalar</div>
+                <div className="column">Descricao</div>
+                <div className="column">Disponivel</div>
+                <div className="column">Minimo</div>
               </div>
-              {/* If medications were an array, you would map over them here */}
-              {/* As it's now a string, no mapping is needed */}
+              {medications.map((medication) => (
+                <div className="alerts-table-row" key={medication.medicamentoID}>
+                  <div className="column">{medication.nomeMedicamento}</div>
+                  <div className="column">{services[medication.servicoID]}</div>
+                  <div className="column">{medication.tipoMedicamento}</div>
+                  <div className="column">{medication.quantidadeDisponivel}</div>
+                  <div className="column">{medication.quantidadeMinima}</div>
+                </div>
+              ))}
             </div>
           ) : (
             <p>No medications available at the moment.</p>
@@ -149,44 +81,50 @@ const Alerts = () => {
 
         {/* Orders Section */}
         <section className="alerts-section">
-          <h2>Encomendas</h2>
-          {orders === "No pending approval orders." ? (
-            <p>{orders}</p>
-          ) : orders ? (
+          <h2>Encomendas Pendentes</h2>
+          {orders.length > 0 ? (
             <div className="alerts-table-container">
               <div className="alerts-table-header">
-                <div className="column-id">ID</div>
-                <div className="column-name">Nome</div>
-                <div className="column-complete">Completa?</div>
-                <div className="column-approved">Aprovado?</div>
-                <div className="column-order-date">Data de Encomenda</div>
-                <div className="column-delivery-date">Data de Entrega</div>
-                <div className="column-sent-quantity">Quantidade Enviada</div>
-                <div className="column-action">Ação</div>
+                <div className="column">Encomenda N.º</div>
+                <div className="column">Completa?</div>
+                <div className="column">Data de Encomenda</div>
               </div>
-              {/* If orders were an array, you would map over them here */}
+              {orders.map((order) => (
+                <div className="alerts-table-row" key={order.encomendaID}>
+                  <div className="column">{order.encomendaID}</div>
+                  <div className="column">{order.encomendaCompleta ? "Completa" : "Pendente"}</div>
+                  <div className="column">{new Date(order.dataEncomenda).toLocaleDateString()}</div>
+                </div>
+              ))}
             </div>
           ) : (
-            <p>No orders available at the moment.</p>
+            <p>No incomplete orders available at the moment.</p>
           )}
         </section>
 
         {/* Requests Section */}
         <section className="alerts-section">
-          <h2>Requisições</h2>
-          {requests === "No pending approval requests." ? (
-            <p>{requests}</p>
-          ) : requests ? (
+          <h2>Requisições Pendentes</h2>
+          {requests.length > 0 ? (
             <div className="alerts-table-container-request">
               <div className="alerts-table-header-request">
-                <div className="column-id">ID</div>
-                <div className="column-name">Nome</div>
-                <div className="column-available">Data de Pedido</div>
-                <div className="column-minimum">Data Prevista</div>
-                <div className="column-approved">Aprovado?</div>
-                <div className="column-action">Ação</div>
+                <div className="column">Requisição N.º</div>
+                <div className="column">Nome</div>
+                <div className="column">Data de Pedido</div>
+                <div className="column">Aprovado?</div>
               </div>
-              {/* If requests were an array, you would map over them here */}
+              {requests.map((request) => (
+                <div className="alerts-table-row-request" key={request.requisicaoID}>
+                  <div className="column">{request.requisicaoID}</div>
+                  <div className="column">{`${request.nomeProprio} ${request.ultimoNome}`}</div>
+                  <div className="column">
+                    {new Date(request.dataRequisicao).toLocaleDateString()}
+                  </div>
+                  <div className="column">
+                    {request.aprovadoPorAdministrador ? "Aprovado" : "Pendente"}
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <p>No requests available at the moment.</p>
