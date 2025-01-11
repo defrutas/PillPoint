@@ -111,6 +111,18 @@
   border-radius: 4px;
 }
 
+.status-awaiting-shipment {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+}
+
+.approve-button{
+  margin-right: 0.5em;
+}
+
 /* Modal Overlay */
 .modal-overlay {
   position: fixed;

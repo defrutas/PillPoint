@@ -68,6 +68,51 @@ const Encomendas = () => {
     setShowCreateForm(true);
   };
 
+  const handleApprove = async (id) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("No authentication token available.");
+  
+      const response = await fetch(
+        `http://4.211.87.132:5000/api/orders/approve/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) throw new Error("Failed to approve order");
+      await fetchEncomendas(); // Refresh the list after approval
+    } catch (error) {
+      setError("Failed to approve order");
+      console.error("Approve Order Error:", error);
+    }
+  };
+  
+  const handleCancel = async (id) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("No authentication token available.");
+  
+      const response = await fetch(
+        `http://4.211.87.132:5000/api/orders/cancel/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) throw new Error("Failed to cancel order");
+  
+      await fetchEncomendas(); // Refresh the list after cancellation
+    } catch (error) {
+      setError("Failed to cancel order");
+      console.error("Cancel Order Error:", error);
+    }
+  };
+
   const submitCreateOrder = async (e) => {
     e.preventDefault();
     try {
@@ -81,21 +126,48 @@ const Encomendas = () => {
           body: JSON.stringify(newEncomenda),
         }
       );
-      if (!response.ok) throw new Error("Failed to create order");
+      if (!response.ok) {
+        const errorDetails = await response.json();
+        console.error("Server Error Details:", errorDetails);
+        throw new Error("Failed to create order");
+      }
       const createdOrder = await response.json();
       setEncomendas((prev) => [...prev, createdOrder]);
       setShowCreateForm(false);
     } catch (error) {
       setError("Failed to create order");
-      console.error(error);
+      console.error("Submit Create Order Error:", error);
     }
   };
 
-  const getStatusClass = (status) => {
-    if (status === "Approved") return "status-approved";
-    if (status === "Pending") return "status-pending";
-    if (status === "Refused") return "status-refused";
-    return "";
+  const getStatusClass = (estadoID) => {
+    switch (estadoID) {
+      case 1: // Pendente
+        return "status-pending";
+      case 2: // Cancelada
+        return "status-refused";
+      case 3: // Aguardar Envio
+        return "status-awaiting-shipment";
+      case 4: // Completa
+        return "status-approved";
+      default:
+        return "";
+    }
+  };
+
+  const getStatusText = (estadoID) => {
+    switch (estadoID) {
+      case 1:
+        return "Pendente";
+      case 2:
+        return "Cancelada";
+      case 3:
+        return "Aguardar Envio";
+      case 4:
+        return "Completa";
+      default:
+        return "Desconhecido";
+    }
   };
 
   return (
@@ -118,6 +190,7 @@ const Encomendas = () => {
               <div className="column">Quantidade Encomendada</div>
               <div className="column">Previsão de Entrega</div>
               <div className="column">Estado</div>
+              <div className="column">Ações</div>
             </div>
             {/* Table Rows */}
             {encomendas.map((encomenda, index) => (
@@ -138,17 +211,23 @@ const Encomendas = () => {
                     : "N/A"}
                 </div>
                 <div
-                  className={`column ${getStatusClass(
-                    encomenda.status ||
-                      (encomenda.aprovadoporadministrador
-                        ? "Approved"
-                        : "Pending")
-                  )}`}
+                  className={`column ${getStatusClass(encomenda.estadoID)}`}
                 >
-                  {encomenda.status ||
-                    (encomenda.aprovadoporadministrador
-                      ? "Aprovado"
-                      : "Pendente")}
+                  {getStatusText(encomenda.estadoID)}
+                </div>
+                <div className="column actions">
+                  <button
+                    className="approve-button"
+                    onClick={() => handleApprove(encomenda.encomendaID)}
+                  >
+                    Aprovar
+                  </button>
+                  <button
+                    className="cancel-button"
+                    onClick={() => handleCancel(encomenda.encomendaID)}
+                  >
+                    Cancelar
+                  </button>
                 </div>
               </div>
             ))}
@@ -192,7 +271,10 @@ const Encomendas = () => {
               >
                 <option value="">Selecione um fornecedor</option>
                 {fornecedores.map((fornecedor) => (
-                  <option key={fornecedor.fornecedorID} value={fornecedor.fornecedorID}>
+                  <option
+                    key={fornecedor.fornecedorID}
+                    value={fornecedor.fornecedorID}
+                  >
                     {fornecedor.nomeFornecedor}
                   </option>
                 ))}
