@@ -4,6 +4,7 @@ import "./Encomendas.css";
 
 const Encomendas = () => {
   const [userName, setUserName] = useState("");
+  const [medicamentos, setMedicamentos] = useState([]);
   const [encomendas, setEncomendas] = useState([]);
   const [fornecedores, setFornecedores] = useState([]);
   const [error, setError] = useState("");
@@ -15,6 +16,22 @@ const Encomendas = () => {
     dataEntrega: "",
     createdBy: "",
   });
+
+  // Fetch Medicamentos
+  useEffect(() => {
+    const fetchMedicamentos = async () => {
+      try {
+        const response = await fetch(
+          "http://4.211.87.132:5000/api/products/all"
+        );
+        const data = await response.json();
+        setMedicamentos(data);
+      } catch (error) {
+        console.error("Failed to fetch medicamentos:", error);
+      }
+    };
+    fetchMedicamentos();
+  }, []);
 
   const fetchEncomendas = async () => {
     try {
@@ -72,7 +89,7 @@ const Encomendas = () => {
     try {
       const token = localStorage.getItem("authToken");
       if (!token) throw new Error("No authentication token available.");
-  
+
       const response = await fetch(
         `http://4.211.87.132:5000/api/orders/approve/${id}`,
         {
@@ -89,12 +106,12 @@ const Encomendas = () => {
       console.error("Approve Order Error:", error);
     }
   };
-  
+
   const handleCancel = async (id) => {
     try {
       const token = localStorage.getItem("authToken");
       if (!token) throw new Error("No authentication token available.");
-  
+
       const response = await fetch(
         `http://4.211.87.132:5000/api/orders/cancel/${id}`,
         {
@@ -105,7 +122,7 @@ const Encomendas = () => {
         }
       );
       if (!response.ok) throw new Error("Failed to cancel order");
-  
+
       await fetchEncomendas(); // Refresh the list after cancellation
     } catch (error) {
       setError("Failed to cancel order");
@@ -116,24 +133,31 @@ const Encomendas = () => {
   const submitCreateOrder = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(
-        "http://4.211.87.132:5000/api/orders/create",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newEncomenda),
-        }
-      );
+      // Retrieve the token from localStorage
+      const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("No authentication token available.");
+  
+      // Add estadoID with default value 1 to the request payload
+      const payload = { ...newEncomenda, estadoID: 1 };
+  
+      const response = await fetch("http://4.211.87.132:5000/api/orders/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+  
       if (!response.ok) {
         const errorDetails = await response.json();
         console.error("Server Error Details:", errorDetails);
         throw new Error("Failed to create order");
       }
+  
       const createdOrder = await response.json();
-      setEncomendas((prev) => [...prev, createdOrder]);
-      setShowCreateForm(false);
+      setEncomendas((prev) => [...prev, createdOrder]); // Update the orders list
+      setShowCreateForm(false); // Close the form
     } catch (error) {
       setError("Failed to create order");
       console.error("Submit Create Order Error:", error);
@@ -210,9 +234,7 @@ const Encomendas = () => {
                     ? new Date(encomenda.dataEntrega).toLocaleDateString()
                     : "N/A"}
                 </div>
-                <div
-                  className={`column ${getStatusClass(encomenda.estadoID)}`}
-                >
+                <div className={`column ${getStatusClass(encomenda.estadoID)}`}>
                   {getStatusText(encomenda.estadoID)}
                 </div>
                 <div className="column actions">
@@ -276,6 +298,24 @@ const Encomendas = () => {
                     value={fornecedor.fornecedorID}
                   >
                     {fornecedor.nomeFornecedor}
+                  </option>
+                ))}
+              </select>
+              <label htmlFor="medicamentoID">Medicamento</label>
+              <select
+                name="medicamentoID"
+                value={newEncomenda.medicamentoID}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="">Selecione um medicamento</option>
+                {medicamentos.map((medicamento) => (
+                  <option
+                    key={medicamento.medicamentoID}
+                    value={medicamento.medicamentoID}
+                  >
+                    {medicamento.nomeMedicamento} ({medicamento.tipoMedicamento}
+                    )
                   </option>
                 ))}
               </select>

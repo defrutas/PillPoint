@@ -14,40 +14,42 @@ const Sidebar = () => {
         }
         const data = await response.json();
         console.log("Fetched alert data:", data);
-
+  
         let totalCount = 0;
-
+  
         // Helper function to check if a string contains a number
         const extractNumberFromString = (str) => {
-          const match = str.match(/\d+/);  // Extracts the first number in a string
+          const match = str.match(/\d+/); // Extracts the first number in a string
           return match ? parseInt(match[0], 10) : 0;
         };
-
-        // Check if medications, orders, or requests are arrays or strings
+  
+        // Count medications
         if (Array.isArray(data.medications)) {
           totalCount += data.medications.length;
         } else if (typeof data.medications === 'string') {
           totalCount += extractNumberFromString(data.medications);
         }
-
-        if (Array.isArray(data.orders)) {
-          totalCount += data.orders.length;
-        } else if (typeof data.orders === 'string') {
-          totalCount += extractNumberFromString(data.orders);
+  
+        // Count incomplete orders
+        if (Array.isArray(data.incompleteOrders)) {
+          totalCount += data.incompleteOrders.length;
+        } else if (typeof data.incompleteOrders === 'string') {
+          totalCount += extractNumberFromString(data.incompleteOrders);
         }
-
+  
+        // Count requests
         if (Array.isArray(data.requests)) {
           totalCount += data.requests.length;
         } else if (typeof data.requests === 'string') {
           totalCount += extractNumberFromString(data.requests);
         }
-
+  
         setAlertCount(totalCount);
       } catch (error) {
         console.error('Error fetching alert count:', error);
       }
     };
-
+  
     fetchAlertCounts();
   }, []);
 

@@ -12,31 +12,26 @@ const Alerts = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch medications data
         const response = await fetch("http://4.211.87.132:5000/api/notifications");
         if (!response.ok) {
           throw new Error("Failed to fetch data");
         }
         const data = await response.json();
         console.log("API Response:", data);
-
+  
         setMedications(data.medications || []);
         setOrders(data.incompleteOrders || []);
-        setRequests(data.requests || []);
-
-        // Fetch services data (this is just an example URL)
+        setRequests(Array.isArray(data.requests) ? data.requests : []);
+  
         const serviceResponse = await fetch("http://4.211.87.132:5000/api/services/all");
         if (!serviceResponse.ok) {
           throw new Error("Failed to fetch services");
         }
         const serviceData = await serviceResponse.json();
-
-        // Create a mapping of serviceID to serviceName
         const serviceMap = serviceData.reduce((acc, service) => {
-          acc[service.servicoID] = service.nomeServico; // Assuming servicoID and nomeServico exist
+          acc[service.servicoID] = service.nomeServico;
           return acc;
         }, {});
-
         setServices(serviceMap);
       } catch (error) {
         setError("Failed to load data");
@@ -45,6 +40,7 @@ const Alerts = () => {
     };
     fetchData();
   }, []);
+  
 
   return (
     <div className="alerts-page">

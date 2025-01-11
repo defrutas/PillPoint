@@ -115,6 +115,62 @@ const Request = () => {
     fetchAvailableServicos();
   }, [newRequest.medicamentos[0]?.medicamentoID]);
 
+  const handleApprove = async (requisicaoID) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("No authentication token available.");
+
+      const response = await fetch(
+        `http://4.211.87.132:5000/api/requests/approve/${requisicaoID}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to approve request.");
+
+      setRequisicoes((prevRequisicoes) =>
+        prevRequisicoes.map((req) =>
+          req.requisicaoID === requisicaoID ? { ...req, estadoID: 4 } : req
+        )
+      );
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleCancel = async (requisicaoID) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("No authentication token available.");
+
+      const response = await fetch(
+        `http://4.211.87.132:5000/api/requests/cancel/${requisicaoID}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to cancel request.");
+
+      setRequisicoes((prevRequisicoes) =>
+        prevRequisicoes.map((req) =>
+          req.requisicaoID === requisicaoID ? { ...req, estadoID: 2 } : req
+        )
+      );
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
@@ -186,56 +242,6 @@ const Request = () => {
 
   const getEstadoName = (estadoID) => ESTADO_MAP[estadoID] || "Desconhecido";
 
-  // Handler for approving a request
-  const approveRequest = async (requisicaoID) => {
-    try {
-      const response = await fetch(
-        `http://4.211.87.132:5000/api/requests/approve/${requisicaoID}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to approve request.");
-
-      setRequisicoes((prevRequisicoes) =>
-        prevRequisicoes.map((req) =>
-          req.requisicaoID === requisicaoID ? { ...req, estadoID: 4 } : req
-        )
-      );
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  // Handler for canceling a request
-  const cancelRequest = async (requisicaoID) => {
-    try {
-      const response = await fetch(
-        `http://4.211.87.132:5000/api/requests/cancel/${requisicaoID}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to cancel request.");
-
-      setRequisicoes((prevRequisicoes) =>
-        prevRequisicoes.map((req) =>
-          req.requisicaoID === requisicaoID ? { ...req, estadoID: 2 } : req
-        )
-      );
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
   return (
     <div className="requests-page">
       <Toolbar
@@ -270,6 +276,14 @@ const Request = () => {
                   className={`column estado ${getEstadoClass(req.estadoID)}`}
                 >
                   {getEstadoName(req.estadoID)}
+                </div>
+                <div className="column">
+                  <button className="approve-btn" onClick={() => handleApprove(req.requisicaoID)}>
+                    Approve
+                  </button>
+                  <button className="cancel-btn" onClick={() => handleCancel(req.requisicaoID)}>
+                    Cancel
+                  </button>
                 </div>
                 ;
               </div>

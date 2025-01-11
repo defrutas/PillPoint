@@ -107,6 +107,10 @@
   background-color: #d32f2f;
 }
 
+.approve-btn{
+  margin-right: 0.5em;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .modal-request {
