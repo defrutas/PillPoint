@@ -49,6 +49,12 @@
   text-align: center;
 }
 
+.column-desc{
+  flex: 1;
+  padding: 0.5em;
+  text-align: left;
+}
+
 .edit-btn {
   margin-right: 1em;
 }

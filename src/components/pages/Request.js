@@ -271,7 +271,6 @@ const Request = () => {
                 <div className="column">
                   {new Date(req.dataEntrega).toLocaleDateString()}
                 </div>
-                <div className="column">{getEstadoName(req.estadoID)}</div>
                 <div
                   className={`column estado ${getEstadoClass(req.estadoID)}`}
                 >

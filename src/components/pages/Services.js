@@ -153,16 +153,13 @@ const Services = () => {
               <div className="column">Nome</div>
               <div className="column">Localidade</div>
               <div className="column">Disponível 24h</div>
+              <div className="column">Descrição</div>
               <div className="column">Ações</div>
             </div>
             {services.map((service) => (
               <div className="services-table-row" key={service.servicoID}>
                 <div className="column">{service.servicoID}</div>
-                <div className="column">
-                  <Link
-                    to={`/services/${service.servicoID}`}
-                    className="service-link"
-                  >
+                <div className="column"><Link to={`/services/${service.servicoID}`} className="service-link">
                     {service.nomeServico}
                   </Link>
                 </div>
@@ -170,6 +167,7 @@ const Services = () => {
                 <div className="column">
                   {service.servicoDisponivel24horas ? "Sim" : "Não"}
                 </div>
+                <div className="column-desc">{service.descServico}</div>
                 <div className="column">
                   <button
                     className="edit-btn"
@@ -181,7 +179,7 @@ const Services = () => {
                     className="delete-btn"
                     onClick={() => handleDeleteClick(service.servicoID)}
                   >
-                    Excluir
+                    Apagar
                   </button>
                 </div>
               </div>

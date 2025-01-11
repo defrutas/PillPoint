@@ -59,36 +59,53 @@ const Product = () => {
 
   const submitCreateMedication = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.error('No token found. Please log in.');
-      return;
-    }
-
+  
     try {
-      const response = await fetch('http://4.211.87.132:5000/api/products/new', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(newMedication),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Error creating medication:', errorData.message || response.statusText);
-        return;
+      // Retrieve token from localStorage
+      const token = localStorage.getItem("token");  
+      if (!token) throw new Error("No authentication token available.");
+  
+      // Ensure token is valid before proceeding
+      if (token === "undefined" || token === null || token.trim() === "") {
+        throw new Error("Token is invalid or empty.");
       }
-
+  
+      // Prepare the payload
+      const payload = {
+        ...newMedication,
+      };
+  
+      const response = await fetch("http://4.211.87.132:5000/api/products/new", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (!response.ok) {
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to create medication.");
+        } else {
+          const errorText = await response.text();
+          throw new Error(errorText || "Failed to create medication.");
+        }
+      }
+  
       const createdMedication = await response.json();
       setMedicamentos((prevMedicamentos) => [...prevMedicamentos, createdMedication]);
       setShowCreateForm(false);
-      console.log('Medication created successfully:', createdMedication);
-    } catch (error) {
-      console.error('Error creating medication:', error);
+      console.log("Medication created successfully:", createdMedication);
+    } catch (err) {
+      console.error("Error creating medication:", err.message);
+      setError(err.message);
     }
   };
+  
+  
 
   return (
     <div className="product-page">
@@ -116,11 +133,11 @@ const Product = () => {
                 <div className="column">{medicamento.nomeMedicamento}</div>
                 <div className="column">{medicamento.tipoMedicamento}</div>
                 <div className="column">{medicamento.stockGlobal}</div>
-                <div className="column">{medicamento.dataValidade}</div>
+                <div className="column">{new Date(medicamento.dataValidade).toLocaleDateString()}</div>
                 <div className="column">{medicamento.lote}</div>
                 <div className="column">
-                  <button className="edit-button">Editar</button>
-                  <button className="delete-button">Apagar</button>
+                  <button className="edit-btn">Editar</button>
+                  <button className="delete-btn">Apagar</button>
                 </div>
               </div>
             ))}
