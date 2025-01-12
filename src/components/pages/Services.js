@@ -20,7 +20,9 @@ const Services = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await fetch("http://4.211.87.132:5000/api/services/all");
+        const response = await fetch(
+          "http://4.211.87.132:5000/api/services/all"
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch data");
         }
@@ -159,7 +161,11 @@ const Services = () => {
             {services.map((service) => (
               <div className="services-table-row" key={service.servicoID}>
                 <div className="column">{service.servicoID}</div>
-                <div className="column"><Link to={`/services/${service.servicoID}`} className="service-link">
+                <div className="column">
+                  <Link
+                    to={`/services/${service.servicoID}`}
+                    className="service-link"
+                  >
                     {service.nomeServico}
                   </Link>
                 </div>

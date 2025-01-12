@@ -1,50 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Product.css';
-import Toolbar from '../Toolbar';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "./Product.css";
+import Toolbar from "../Toolbar";
 
 const Product = () => {
   const [medicamentos, setMedicamentos] = useState([]);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [newMedication, setNewMedication] = useState({
-    nomeMedicamento: '',
-    tipoMedicamento: '',
-    dataValidade: '',
-    lote: '',
+    nomeMedicamento: "",
+    tipoMedicamento: "",
+    dataValidade: "",
+    lote: "",
+    descricao: "",
   });
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAdminStatus = () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const decodedToken = JSON.parse(atob(token.split('.')[1]));
-          setIsAdmin(decodedToken.isAdmin);
-        } catch (error) {
-          console.error('Failed to decode token', error);
-        }
-      }
-    };
-
     const fetchMedicamentos = async () => {
       try {
-        const response = await fetch('http://4.211.87.132:5000/api/products/all');
+        const response = await fetch(
+          "http://4.211.87.132:5000/api/products/all"
+        );
         if (!response.ok) {
-          throw new Error('Failed to fetch data');
+          throw new Error("Failed to fetch data");
         }
         const data = await response.json();
         setMedicamentos(data);
       } catch (error) {
-        setError('Failed to load medicamentos data');
+        setError("Failed to load medicamentos data");
         console.error(error);
       }
     };
-
-    checkAdminStatus();
     fetchMedicamentos();
   }, []);
 
@@ -58,55 +47,44 @@ const Product = () => {
   };
 
   const submitCreateMedication = async (e) => {
-    e.preventDefault();
+    e.preventDefault();  // Prevent the form from reloading the page
+  
+    const medicationData = {
+      nomeMedicamento: newMedication.nomeMedicamento,
+      tipoMedicamento: newMedication.tipoMedicamento,
+      dataValidade: newMedication.dataValidade,
+      lote: newMedication.lote,
+      descricao: newMedication.descricao,
+    };
+  
+    // Get the token from localStorage
+    const token = localStorage.getItem('accessToken');
   
     try {
-      // Retrieve token from localStorage
-      const token = localStorage.getItem("token");  
-      if (!token) throw new Error("No authentication token available.");
-  
-      // Ensure token is valid before proceeding
-      if (token === "undefined" || token === null || token.trim() === "") {
-        throw new Error("Token is invalid or empty.");
-      }
-  
-      // Prepare the payload
-      const payload = {
-        ...newMedication,
-      };
-  
-      const response = await fetch("http://4.211.87.132:5000/api/products/new", {
-        method: "POST",
+      const response = await fetch('http://4.211.87.132:5000/api/products/new', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(medicationData),
       });
   
       if (!response.ok) {
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Failed to create medication.");
-        } else {
-          const errorText = await response.text();
-          throw new Error(errorText || "Failed to create medication.");
-        }
+        const errorResponse = await response.json();  // Capture the error response
+        throw new Error(errorResponse.message || 'Failed to create new medication');
       }
   
-      const createdMedication = await response.json();
-      setMedicamentos((prevMedicamentos) => [...prevMedicamentos, createdMedication]);
-      setShowCreateForm(false);
-      console.log("Medication created successfully:", createdMedication);
-    } catch (err) {
-      console.error("Error creating medication:", err.message);
-      setError(err.message);
+      const result = await response.json();
+      setMedicamentos((prevMedicamentos) => [...prevMedicamentos, result]);  // Add the newly created medication to the list
+      setNewMedication({ nomeMedicamento: '', tipoMedicamento: '', dataValidade: '', lote: '', descricao: '' }); // Reset form fields
+      setShowCreateForm(false);  // Close the form
+    } catch (error) {
+      setError('Failed to create medication: ' + error.message);
+      console.error(error);
     }
   };
   
-  
-
   return (
     <div className="product-page">
       <Toolbar
@@ -133,7 +111,9 @@ const Product = () => {
                 <div className="column">{medicamento.nomeMedicamento}</div>
                 <div className="column">{medicamento.tipoMedicamento}</div>
                 <div className="column">{medicamento.stockGlobal}</div>
-                <div className="column">{new Date(medicamento.dataValidade).toLocaleDateString()}</div>
+                <div className="column">
+                  {new Date(medicamento.dataValidade).toLocaleDateString()}
+                </div>
                 <div className="column">{medicamento.lote}</div>
                 <div className="column">
                   <button className="edit-btn">Editar</button>
@@ -188,9 +168,21 @@ const Product = () => {
                 onChange={handleInputChange}
                 required
               />
+              <input
+                className="input-product"
+                type="text"
+                name="descricao"
+                placeholder="Descrição"
+                value={newMedication.descricao}
+                onChange={handleInputChange}
+                required
+              />
               <button type="submit">Salvar</button>
             </form>
-            <button className="close-button" onClick={() => setShowCreateForm(false)}>
+            <button
+              className="close-button"
+              onClick={() => setShowCreateForm(false)}
+            >
               Fechar
             </button>
           </div>

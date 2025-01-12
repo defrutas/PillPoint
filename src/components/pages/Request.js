@@ -13,6 +13,7 @@ const Request = () => {
   const [requisicoes, setRequisicoes] = useState([]);
   const [error, setError] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [services, setServices] = useState({});
   const [newRequest, setNewRequest] = useState({
     dataRequisicao: new Date().toISOString().split("T")[0],
     dataEntrega: "",
@@ -31,6 +32,7 @@ const Request = () => {
       case 2: // Cancelado
         return "estado-cancelado";
       case 3: // Aguardar Envio
+        return "estado-aguardar-envio";
       case 4: // Concluído
         return "estado-concluido";
       default:
@@ -77,7 +79,15 @@ const Request = () => {
         if (!response.ok)
           throw new Error("Failed to fetch serviços hospitalares");
         const data = await response.json();
+
+        // Map the services list to a key-value pair with servicoID as the key
+        const servicesMap = data.reduce((acc, servico) => {
+          acc[servico.servicoID] = servico.nomeServico;
+          return acc;
+        }, {});
+
         setServicosList(data.map((servico) => servico.nomeServico));
+        setServices(servicesMap); // Update the services state
       } catch (err) {
         setError("Failed to load serviços hospitalares.");
       }
@@ -184,6 +194,11 @@ const Request = () => {
           },
         ],
       }));
+    } else if (name === "servicoID") {
+      setNewRequest((prevState) => ({
+        ...prevState,
+        [name]: value, // Directly update servicoID
+      }));
     } else {
       setNewRequest((prevState) => ({
         ...prevState,
@@ -203,10 +218,10 @@ const Request = () => {
       const token = localStorage.getItem("authToken");
       if (!token) throw new Error("No authentication token available.");
 
-      // Create the payload by mapping servicoID to servicoHospitalarAlvoID
+      // Ensure that the servicoID is correctly set and mapped in the payload
       const payload = {
         ...newRequest,
-        servicoHospitalarRemetenteID: newRequest.servicoID, // Map servicoID directly to servicoHospitalarAlvoID
+        servicoHospitalarRemetenteID: newRequest.servicoID, // Use servicoID correctly mapped
         medicamentos: newRequest.medicamentos.map((med) => ({
           medicamentoID: med.medicamentoID,
           quantidade: med.quantidade,
@@ -215,7 +230,7 @@ const Request = () => {
         dataEntrega: new Date(newRequest.dataEntrega).toISOString(),
       };
 
-      // Remove the original servicoID from the payload
+      // Remove the original servicoID from the payload, as it is already mapped to servicoHospitalarRemetenteID
       delete payload.servicoID;
 
       const response = await fetch(
@@ -256,6 +271,7 @@ const Request = () => {
             <div className="requests-table-header">
               <div className="column">ID</div>
               <div className="column">Nome Serviço</div>
+              <div className="column">Criado por</div>
               <div className="column">Data Requisição</div>
               <div className="column">Data Entrega</div>
               <div className="column">Estado</div>
@@ -264,7 +280,10 @@ const Request = () => {
             {requisicoes.map((req) => (
               <div className="requests-table-row" key={req.requisicaoID}>
                 <div className="column">{req.requisicaoID}</div>
-                <div className="column">{req.nomeServico}</div>
+                <div className="column">{services[req.servicoID]}</div>
+                <div className="column">
+                  {req.nomeProfissional} {req.ultimoNomeProfissional}{" "}
+                </div>
                 <div className="column">
                   {new Date(req.dataRequisicao).toLocaleDateString()}
                 </div>
@@ -277,14 +296,19 @@ const Request = () => {
                   {getEstadoName(req.estadoID)}
                 </div>
                 <div className="column">
-                  <button className="approve-btn" onClick={() => handleApprove(req.requisicaoID)}>
+                  <button
+                    className="approve-btn"
+                    onClick={() => handleApprove(req.requisicaoID)}
+                  >
                     Approve
                   </button>
-                  <button className="cancel-btn" onClick={() => handleCancel(req.requisicaoID)}>
+                  <button
+                    className="cancel-btn"
+                    onClick={() => handleCancel(req.requisicaoID)}
+                  >
                     Cancel
                   </button>
                 </div>
-                ;
               </div>
             ))}
           </div>
@@ -355,20 +379,10 @@ const Request = () => {
                     ))
                   ) : (
                     <option value="" disabled>
-                      Nenhum serviço disponível para este medicamento
+                      Nenhum serviço disponível
                     </option>
                   )}
                 </select>
-
-                <label htmlFor="Quantidade">Quantidade</label>
-                <input
-                  type="number"
-                  name="quantidade"
-                  value={newRequest.medicamentos[0]?.quantidade || ""}
-                  onChange={handleInputChange}
-                  placeholder="Quantidade"
-                  required
-                />
               </div>
               <button type="submit">Criar Requisição</button>
             </form>
