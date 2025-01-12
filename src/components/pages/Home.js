@@ -75,7 +75,7 @@ function Home() {
               <h2 className="card-title">Medicamentos</h2>
               <p className="card-description">
                 {counts.medicamentos > 0
-                  ? `${counts.medicamentos} Medicamentos disponíveis`
+                  ? `${counts.medicamentos} Medicamentos abaixo do stock mínimo!`
                   : "Nenhum medicamento encontrado."}
               </p>
             </div>
