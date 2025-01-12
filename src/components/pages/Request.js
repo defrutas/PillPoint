@@ -21,7 +21,7 @@ const Request = () => {
     adminID: null,
     aprovadoPorAdministrador: 0,
     requisicaoCompleta: 0,
-    medicamentos: [{ medicamentoID: "", quantidade: "" }],
+    medicamentos: [{ medicamentoID: "", quantidade: 0 }],
     servicoID: "",
   });
 
@@ -183,29 +183,28 @@ const Request = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    if (name === "medicamentoID" || name === "quantidade") {
-      setNewRequest((prevState) => ({
-        ...prevState,
-        medicamentos: [
-          {
-            ...prevState.medicamentos[0],
-            [name]: name === "medicamentoID" ? parseInt(value, 10) : value, // Ensure numeric ID for medicamentoID
-          },
-        ],
-      }));
-    } else if (name === "servicoID") {
-      setNewRequest((prevState) => ({
-        ...prevState,
-        [name]: value, // Directly update servicoID
-      }));
+  
+    if (name === "medicamentoID" || name === "quantidadeEnviada") {
+      // Handle nested medicamento data
+      setNewRequest((prev) => {
+        const medicamentos = [...prev.medicamentos];
+        if (medicamentos.length === 0) medicamentos.push({});
+  
+        medicamentos[0][name === "medicamentoID" ? "medicamentoID" : "quantidade"] = value;
+  
+        return {
+          ...prev,
+          medicamentos,
+        };
+      });
     } else {
-      setNewRequest((prevState) => ({
-        ...prevState,
-        [name]: value,
+      // Handle other fields, including servicoID
+      setNewRequest((prev) => ({
+        ...prev,
+        [name]: value, // Dynamically update the state key based on the input name
       }));
     }
-  };
+  };  
 
   const handleCreateRequest = () => {
     setShowCreateForm(true);
@@ -213,26 +212,45 @@ const Request = () => {
 
   const submitCreateRequest = async (e) => {
     e.preventDefault();
-
+  
     try {
       const token = localStorage.getItem("authToken");
       if (!token) throw new Error("No authentication token available.");
-
-      // Ensure that the servicoID is correctly set and mapped in the payload
-      const payload = {
-        ...newRequest,
-        servicoHospitalarRemetenteID: newRequest.servicoID, // Use servicoID correctly mapped
-        medicamentos: newRequest.medicamentos.map((med) => ({
+  
+      // Validate mandatory fields
+      if (!newRequest.servicoID) throw new Error("Serviço Hospitalar is required.");
+      if (
+        !Array.isArray(newRequest.medicamentos) ||
+        newRequest.medicamentos.length === 0
+      ) {
+        throw new Error("At least one Medicamento is required.");
+      }
+  
+      // Format medicamentos array
+      const formattedMedicamentos = newRequest.medicamentos.map((med) => {
+        if (!med.medicamentoID || !med.quantidade) {
+          throw new Error(
+            "Invalid medicamento data: medicamentoID and quantidade are required."
+          );
+        }
+        return {
           medicamentoID: med.medicamentoID,
           quantidade: med.quantidade,
-        })),
+        };
+      });
+  
+      // Construct payload with estadoID defaulting to 1
+      const payload = {
+        servicoHospitalarRemetenteID: newRequest.servicoID, // Correctly mapped value
         dataRequisicao: new Date(newRequest.dataRequisicao).toISOString(),
         dataEntrega: new Date(newRequest.dataEntrega).toISOString(),
+        medicamentos: formattedMedicamentos,
+        estadoID: 1, // Default value for estadoID
       };
-
-      // Remove the original servicoID from the payload, as it is already mapped to servicoHospitalarRemetenteID
-      delete payload.servicoID;
-
+  
+      console.log("Payload:", payload); // Debug payload before sending
+  
+      // Send request to API
       const response = await fetch(
         "http://4.211.87.132:5000/api/requests/create",
         {
@@ -244,16 +262,25 @@ const Request = () => {
           body: JSON.stringify(payload),
         }
       );
-
-      if (!response.ok) throw new Error("Failed to create request.");
-
+  
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        console.error("API Error:", errorResponse);
+        throw new Error(errorResponse.message || "Failed to create request.");
+      }
+  
       const createdRequest = await response.json();
+      console.log("Created request:", createdRequest);
+  
+      // Update UI state
       setRequisicoes((prevRequisicoes) => [...prevRequisicoes, createdRequest]);
       setShowCreateForm(false);
     } catch (err) {
+      console.error("Error in submitCreateRequest:", err);
       setError(err.message);
     }
   };
+  
 
   const getEstadoName = (estadoID) => ESTADO_MAP[estadoID] || "Desconhecido";
 
@@ -270,8 +297,10 @@ const Request = () => {
           <div className="requests-table-container">
             <div className="requests-table-header">
               <div className="column">ID</div>
-              <div className="column">Nome Serviço</div>
-              <div className="column">Criado por</div>
+              <div className="column">Medicamento</div>
+              <div className="column">Quantidade</div>
+              <div className="column">Criado por (Serviço)</div>
+              <div className="column">Criado por (Profissional)</div>
               <div className="column">Data Requisição</div>
               <div className="column">Data Entrega</div>
               <div className="column">Estado</div>
@@ -280,7 +309,9 @@ const Request = () => {
             {requisicoes.map((req) => (
               <div className="requests-table-row" key={req.requisicaoID}>
                 <div className="column">{req.requisicaoID}</div>
-                <div className="column">{services[req.servicoID]}</div>
+                <div className="column">{medicamentosList[req.medicamentoID]?.nomeMedicamento}</div>
+                <div className="column">{req.quantidadeMedicamento}</div>
+                <div className="column">{req.nomeServicoHospitalarRemetente}</div>
                 <div className="column">
                   {req.nomeProfissional} {req.ultimoNomeProfissional}{" "}
                 </div>
@@ -383,6 +414,14 @@ const Request = () => {
                     </option>
                   )}
                 </select>
+                <label htmlFor="quantidadeEnviada">Quantidade</label>
+              <input
+                type="number"
+                name="quantidadeEnviada"
+                value={newRequest.quantidadeMedicamento}
+                onChange={handleInputChange}
+                required
+              />
               </div>
               <button type="submit">Criar Requisição</button>
             </form>
