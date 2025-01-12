@@ -19,9 +19,16 @@ const Services = () => {
   // Fetch all services on component mount
   useEffect(() => {
     const fetchServices = async () => {
+      const token = localStorage.getItem("authToken");
+
       try {
         const response = await fetch(
-          "http://4.211.87.132:5000/api/services/all"
+          "http://4.211.87.132:5000/api/services/all",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
         if (!response.ok) {
           throw new Error("Failed to fetch data");
@@ -84,15 +91,20 @@ const Services = () => {
       servicoDisponivel24horas: newService.servicoDisponivel24horas,
     };
 
+    const token = localStorage.getItem("authToken");
+
     try {
       const endpoint = editingService
-        ? `http://4.211.87.132:5000/api/services/servico/${editingService.servicoID}`
+        ? `http://4.211.87.132:5000/api/services/edit/${editingService.servicoID}` // Updated endpoint
         : "http://4.211.87.132:5000/api/services/add";
       const method = editingService ? "PUT" : "POST";
 
       const response = await fetch(endpoint, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(payload),
       });
 
@@ -121,10 +133,17 @@ const Services = () => {
 
   // Handle service deletion
   const handleDeleteClick = async (id) => {
+    const token = localStorage.getItem("authToken");
+
     try {
       const response = await fetch(
-        `http://4.211.87.132:5000/api/services/servico/${id}`,
-        { method: "DELETE" }
+        `http://4.211.87.132:5000/api/services/delete/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (response.ok) {
         setServices((prevState) =>
