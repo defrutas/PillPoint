@@ -7,7 +7,6 @@ const Product = () => {
   const [medicamentos, setMedicamentos] = useState([]);
   const [error, setError] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [newMedication, setNewMedication] = useState({
     nomeMedicamento: "",
     tipoMedicamento: "",
@@ -15,7 +14,7 @@ const Product = () => {
     lote: "",
     descricao: "",
   });
-
+  const [editingMedicationID, setEditingMedicationID] = useState(null); // Track the ID of the medication being edited
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,47 +43,135 @@ const Product = () => {
 
   const handleCreateMedication = () => {
     setShowCreateForm(true);
+    setEditingMedicationID(null); // Reset editing state for new creation
+    setNewMedication({
+      nomeMedicamento: "",
+      tipoMedicamento: "",
+      dataValidade: "",
+      lote: "",
+    }); // Clear form fields
+  };
+
+  const handleEditMedication = (medicamento) => {
+    setShowCreateForm(true);
+    setEditingMedicationID(medicamento.medicamentoID); // Set the ID of the medication being edited
+    setNewMedication({
+      nomeMedicamento: medicamento.nomeMedicamento,
+      tipoMedicamento: medicamento.tipoMedicamento,
+      dataValidade: medicamento.dataValidade,
+      lote: medicamento.lote,
+    });
+  };
+
+  const handleDeleteMedication = async (medicamentoID) => {
+    // Get the token from localStorage
+    const token = localStorage.getItem("authToken");
+
+    try {
+      const response = await fetch(
+        `http://4.211.87.132:5000/api/products/delete/${medicamentoID}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        throw new Error(errorResponse.message || "Failed to delete medication");
+      }
+
+      // Remove the deleted medication from the state list
+      setMedicamentos((prevMedicamentos) =>
+        prevMedicamentos.filter((med) => med.medicamentoID !== medicamentoID)
+      );
+    } catch (error) {
+      setError("Failed to delete medication: " + error.message);
+      console.error(error);
+    }
   };
 
   const submitCreateMedication = async (e) => {
-    e.preventDefault();  // Prevent the form from reloading the page
-  
+    e.preventDefault(); // Prevent the form from reloading the page
+
+    // Get the token from localStorage
+    const token = localStorage.getItem("authToken");
+
     const medicationData = {
       nomeMedicamento: newMedication.nomeMedicamento,
       tipoMedicamento: newMedication.tipoMedicamento,
       dataValidade: newMedication.dataValidade,
       lote: newMedication.lote,
-      descricao: newMedication.descricao,
     };
-  
-    // Get the token from localStorage
-    const token = localStorage.getItem('accessToken');
-  
+
     try {
-      const response = await fetch('http://4.211.87.132:5000/api/products/new', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(medicationData),
-      });
-  
-      if (!response.ok) {
-        const errorResponse = await response.json();  // Capture the error response
-        throw new Error(errorResponse.message || 'Failed to create new medication');
+      let response;
+
+      if (editingMedicationID) {
+        // Update existing medication
+        response = await fetch(
+          `http://4.211.87.132:5000/api/products/update/${editingMedicationID}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(medicationData),
+          }
+        );
+      } else {
+        // Create new medication
+        response = await fetch(
+          "http://4.211.87.132:5000/api/products/new",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(medicationData),
+          }
+        );
       }
-  
+
+      if (!response.ok) {
+        const errorResponse = await response.json(); // Capture the error response
+        throw new Error(
+          errorResponse.message || "Failed to create or update medication"
+        );
+      }
+
       const result = await response.json();
-      setMedicamentos((prevMedicamentos) => [...prevMedicamentos, result]);  // Add the newly created medication to the list
-      setNewMedication({ nomeMedicamento: '', tipoMedicamento: '', dataValidade: '', lote: '', descricao: '' }); // Reset form fields
-      setShowCreateForm(false);  // Close the form
+
+      if (editingMedicationID) {
+        // Update the existing medication in the state list
+        setMedicamentos((prevMedicamentos) =>
+          prevMedicamentos.map((med) =>
+            med.medicamentoID === editingMedicationID ? result : med
+          )
+        );
+      } else {
+        // Add the newly created medication to the list
+        setMedicamentos((prevMedicamentos) => [...prevMedicamentos, result]);
+      }
+
+      setNewMedication({
+        nomeMedicamento: "",
+        tipoMedicamento: "",
+        dataValidade: "",
+        lote: "",
+      }); // Reset form fields
+      setShowCreateForm(false); // Close the form
     } catch (error) {
-      setError('Failed to create medication: ' + error.message);
+      setError("Failed to create or update medication: " + error.message);
       console.error(error);
     }
   };
-  
+
   return (
     <div className="product-page">
       <Toolbar
@@ -116,8 +203,18 @@ const Product = () => {
                 </div>
                 <div className="column">{medicamento.lote}</div>
                 <div className="column">
-                  <button className="edit-btn">Editar</button>
-                  <button className="delete-btn">Apagar</button>
+                  <button
+                    className="edit-btn"
+                    onClick={() => handleEditMedication(medicamento)}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDeleteMedication(medicamento.medicamentoID)}
+                  >
+                    Apagar
+                  </button>
                 </div>
               </div>
             ))}
@@ -130,7 +227,7 @@ const Product = () => {
       {showCreateForm && (
         <div className="popup-overlay">
           <div className="popup-products">
-            <h3>Criar Novo Medicamento</h3>
+            <h3>{editingMedicationID ? "Editar Medicamento" : "Criar Novo Medicamento"}</h3>
             <form className="products-form" onSubmit={submitCreateMedication}>
               <input
                 className="input-product"
@@ -165,15 +262,6 @@ const Product = () => {
                 name="lote"
                 placeholder="Lote"
                 value={newMedication.lote}
-                onChange={handleInputChange}
-                required
-              />
-              <input
-                className="input-product"
-                type="text"
-                name="descricao"
-                placeholder="Descrição"
-                value={newMedication.descricao}
                 onChange={handleInputChange}
                 required
               />
