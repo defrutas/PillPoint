@@ -217,7 +217,7 @@ const Encomendas = () => {
       <div className="column">Criado em</div>
       <div className="column">Quantidade Encomendada</div>
       <div className="column">Previsão de Entrega</div>
-      <div className="column">Estado</div>
+      <div className="column-state">Estado</div>
       <div className="column">Ações</div>
     </div>
     {/* Table Rows */}
@@ -249,18 +249,18 @@ const Encomendas = () => {
             ? new Date(encomenda.dataEntrega).toLocaleDateString()
             : "N/A"}
         </div>
-        <div className={`column ${getStatusClass(encomenda.estadoID)}`}>
+        <div className={`column-state ${getStatusClass(encomenda.estadoID)}`}>
           {getStatusText(encomenda.estadoID)}
         </div>
         <div className="column actions">
           <button
-            className="approve-button"
+            className="approve-btn"
             onClick={() => handleApprove(encomenda.encomendaID)}
           >
             Aprovar
           </button>
           <button
-            className="cancel-button"
+            className="cancel-btn"
             onClick={() => handleCancel(encomenda.encomendaID)}
           >
             Cancelar

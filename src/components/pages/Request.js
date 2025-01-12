@@ -300,13 +300,13 @@ const Request = () => {
                     className="approve-btn"
                     onClick={() => handleApprove(req.requisicaoID)}
                   >
-                    Approve
+                    Aprovar
                   </button>
                   <button
                     className="cancel-btn"
                     onClick={() => handleCancel(req.requisicaoID)}
                   >
-                    Cancel
+                    Cancelar
                   </button>
                 </div>
               </div>

@@ -135,6 +135,26 @@
   font-weight: bold;
 }
 
+.approve-btn,
+.cancel-btn {
+  margin-right: 1em;
+  padding: 0.5em 0.2em;
+  background-color: #007bff; 
+  color: #ffffff;
+  border: none;
+  border-radius: 0.375em; 
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.approve-btn:hover,
+.cancel-btn:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .modal-request {

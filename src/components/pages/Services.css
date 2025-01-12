@@ -55,8 +55,24 @@
   text-align: left;
 }
 
-.edit-btn {
+.edit-btn,
+.delete-btn {
   margin-right: 1em;
+  padding: 0.4em 1em;
+  background-color: #007bff;
+  color: #ffffff;
+  border: none; 
+  border-radius: 0.375em; 
+  font-size: 1rem; 
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.edit-btn:hover,
+.delete-btn:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
 }
 
 /* Responsive Table */

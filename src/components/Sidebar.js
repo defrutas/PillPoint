@@ -76,9 +76,6 @@ const Sidebar = () => {
           <span className="alert-badge">{alertCount}</span>
         )}
       </Link>
-      <Link to="/contacts" className="sidebar-link">
-        Contactos
-      </Link>
     </div>
   );
 };
