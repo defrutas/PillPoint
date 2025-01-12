@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./ServiceDetails.css";
 
 const ServiceDetails = () => {
-  const { id } = useParams(); // Extract 'id' from the URL
+  const { id } = useParams();
+  const navigate = useNavigate(); // Hook for navigation
   const [service, setService] = useState(null);
   const [medicines, setMedicines] = useState([]);
   const [error, setError] = useState("");
@@ -11,7 +12,6 @@ const ServiceDetails = () => {
   useEffect(() => {
     const fetchServiceAndMedicines = async () => {
       try {
-        // Fetch the service details and stock info using the new single API
         const response = await fetch(
           `http://4.211.87.132:5000/api/services/showstock/${id}`
         );
@@ -19,11 +19,7 @@ const ServiceDetails = () => {
           throw new Error("Failed to fetch service details and stock");
         }
         const data = await response.json();
-
-        // Extract service and stock data
         const { service, stock } = data;
-
-        // Set the service and medicines (stock)
         setService(service);
         setMedicines(stock);
       } catch (err) {
@@ -35,51 +31,91 @@ const ServiceDetails = () => {
     fetchServiceAndMedicines();
   }, [id]);
 
-  // Error message handling
   if (error) {
     return <p className="error-message">{error}</p>;
   }
 
-  // Loading state
   if (!service) {
     return <p>Loading...</p>;
   }
 
-  // Service and medicines rendering
   return (
-    <div className="service-details-container mt-20 px-4 py-8 max-w-4xl mx-auto">
-      {/* Main container for the service details */}
+    <div className="service-details-container mt-20 px-4 py-8">
       <div className="service-info">
-        {/* Title */}
         <h1 className="service-title">{service.nomeServico}</h1>
-
-        {/* Service Details */}
         <div className="service-details">
-          <p><strong>Label:</strong> {service.descServico}</p>
-          <p><strong>Location:</strong> {service.localidadeServico}</p>
-          <p><strong>Available 24h:</strong> {service.servicoDisponivel24horas ? "Yes" : "No"}</p>
+          <p> {service.descServico} </p>
+          <p>
+            <strong>Localização:</strong> {service.localidadeServico}
+          </p>
+          {service.servicoDisponivel24horas && (
+            <p>
+              <strong>Disponibilidade:</strong> Aberto 24h por dia
+            </p>
+          )}
         </div>
+
+        <h2 className="medicines-header">
+          Medicação disponível em {service.nomeServico}
+        </h2>
+        {medicines.length > 0 ? (
+          <div className="medicines-list">
+            {medicines.map((med) => (
+              <div
+                key={med.medicamentoID}
+                className={`medicine-card ${
+                  med.quantidadeDisponivel < med.quantidadeMinima
+                    ? "low-stock-visible"
+                    : ""
+                }`}
+              >
+                <h3 className="medicine-title">{med.nomeMedicamento}</h3>
+                <div className="medicine-info">
+                  <p>
+                    <strong>Quantidade Disponível:</strong>{" "}
+                    {med.quantidadeDisponivel}
+                  </p>
+                  <p>
+                    <strong>Quantidade Minima:</strong>{" "}
+                    {med.quantidadeMinima}
+                  </p>
+                  <span className="low-stock">
+                    Atenção!! Quantidade Minima Ultrapassada
+                  </span>
+                </div>
+                {med.quantidadeDisponivel < med.quantidadeMinima && (
+                  <div className="medicine-actions">
+                    <button
+                      className="action-button"
+                      onClick={() => (window.location.href = "/requests")}
+                    >
+                      Fazer Requisição
+                    </button>
+                    <button
+                      className="action-button"
+                      onClick={() => (window.location.href = "/encomendas")}
+                    >
+                      Fazer Encomenda
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No medicines available for this service.</p>
+        )}
       </div>
 
-      {/* Medicines list */}
-      <h2 className="medicines-header">Medicines Available in {service.nomeServico}</h2>
-      {medicines.length > 0 ? (
-        <div className="medicines-list">
-          {medicines.map((med) => (
-            <div key={med.medicamentoID} className="medicine-card">
-              <h3 className="medicine-title">{med.nomeMedicamento}</h3>
-              <p>{med.tipoMedicamento}</p>
-              <p><strong>Available:</strong> {med.quantidadeDisponivel}</p>
-              <p><strong>Minimum Stock:</strong> {med.quantidadeMinima}</p>
-              {med.quantidadeDisponivel < med.quantidadeMinima && (
-                <span className="low-stock">Low Stock</span>
-              )}
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p>No medicines available for this service.</p>
-      )}
+      {/* Back to Services Button */}
+      <div className="back-button-container">
+        <button
+          className="back-button"
+          onClick={() => navigate("/services")}
+        >
+          Voltar para Serviços
+        </button>
+      </div>
     </div>
   );
 };

@@ -1,13 +1,14 @@
 /* Service Details Container */
 .service-details-container {
-  max-width: 900px;
-  margin: 0 auto;
+  width: 95%; /* Full width */
   padding: 20px;
+  margin-left: 3em;
 }
 
 .service-info {
   background-color: #fff;
-  padding: 20px;
+  padding: 2em;
+  width: 100%; /* Full width */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
 }
@@ -30,6 +31,9 @@
 
 /* Medicines List */
 .medicines-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /* Adjust for wider cards */
+  gap: 20px;
   margin-top: 30px;
 }
 
@@ -38,7 +42,10 @@
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 200px; /* Ensure consistent height */
 }
 
 .medicine-title {
@@ -52,9 +59,56 @@
   margin: 5px 0;
 }
 
+.medicine-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
 .low-stock {
   color: #F44336;
   font-weight: bold;
+  visibility: hidden; /* Hidden by default */
+  height: 20px; /* Reserve space */
+  margin-top: 10px;
+}
+
+.medicine-card.low-stock-visible .low-stock {
+  visibility: visible; /* Display when low stock */
+}
+
+.medicines-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.medicine-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.action-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.action-button:hover {
+  background-color: #0056b3;
+}
+
+.low-stock {
+  color: #F44336;
+  font-weight: bold;
+  margin-top: 10px;
 }
 
 /* Error Message */
@@ -62,9 +116,30 @@
   color: red;
   text-align: center;
   font-size: 18px;
+  width: 100%; /* Full width */
 }
 
 /* Additional Helper Classes */
 .mt-20 {
   margin-top: 5em;
+}
+
+.back-button-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.back-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: #0056b3;
 }
