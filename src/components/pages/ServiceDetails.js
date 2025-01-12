@@ -11,34 +11,21 @@ const ServiceDetails = () => {
   useEffect(() => {
     const fetchServiceAndMedicines = async () => {
       try {
-        // Fetch all services
-        const serviceResponse = await fetch("http://4.211.87.132:5000/api/services/all");
-        if (!serviceResponse.ok) {
-          throw new Error("Failed to fetch all services");
-        }
-        const servicesData = await serviceResponse.json();
-        const selectedService = servicesData.find(
-          (servico) => servico.servicoID === parseInt(id, 10)
+        // Fetch the service details and stock info using the new single API
+        const response = await fetch(
+          `http://4.211.87.132:5000/api/services/showstock/${id}`
         );
-        if (!selectedService) {
-          throw new Error("Service not found");
+        if (!response.ok) {
+          throw new Error("Failed to fetch service details and stock");
         }
-        setService(selectedService);
+        const data = await response.json();
 
-        // Fetch medicines for the selected service
-        const medicinesResponse = await fetch("http://4.211.87.132:5000/api/notifications");
-        if (!medicinesResponse.ok) {
-          throw new Error("Failed to fetch medicines");
-        }
-        const medicinesData = await medicinesResponse.json();
-        console.log("Medicines data:", medicinesData); // Debugging log
+        // Extract service and stock data
+        const { service, stock } = data;
 
-        // Handle the case where medicinesData might not be an array
-        const medicinesArray = Array.isArray(medicinesData) ? medicinesData : [];
-        const relatedMedicines = medicinesArray.filter(
-          (med) => med.servicoID === parseInt(id, 10)
-        );
-        setMedicines(relatedMedicines);
+        // Set the service and medicines (stock)
+        setService(service);
+        setMedicines(stock);
       } catch (err) {
         setError(err.message || "Could not fetch service details");
         console.error(err);
