@@ -18,11 +18,11 @@ const Alerts = () => {
         }
         const data = await response.json();
         console.log("API Response:", data);
-  
-        setMedications(data.medications || []);
-        setOrders(data.incompleteOrders || []);
+
+        setMedications(Array.isArray(data.medications) ? data.medications : []);
+        setOrders(Array.isArray(data.incompleteOrders) ? data.incompleteOrders : []); // Ensure orders is an array
         setRequests(Array.isArray(data.requests) ? data.requests : []);
-  
+
         const serviceResponse = await fetch("http://4.211.87.132:5000/api/services/all");
         if (!serviceResponse.ok) {
           throw new Error("Failed to fetch services");
@@ -40,7 +40,6 @@ const Alerts = () => {
     };
     fetchData();
   }, []);
-  
 
   return (
     <div className="alerts-page">
@@ -51,7 +50,7 @@ const Alerts = () => {
         {/* Medications Section */}
         <section className="alerts-section">
           <h2>Medicamentos Em Falta</h2>
-          {medications.length > 0 ? (
+          {Array.isArray(medications) && medications.length > 0 ? (
             <div className="alerts-table-container">
               <div className="alerts-table-header">
                 <div className="column">Medicamento</div>
@@ -62,23 +61,23 @@ const Alerts = () => {
               </div>
               {medications.map((medication) => (
                 <div className="alerts-table-row" key={medication.medicamentoID}>
-                  <div className="column">{medication.nomeMedicamento}</div>
-                  <div className="column">{services[medication.servicoID]}</div>
-                  <div className="column">{medication.tipoMedicamento}</div>
-                  <div className="column">{medication.quantidadeDisponivel}</div>
-                  <div className="column">{medication.quantidadeMinima}</div>
+                  <div className="column">{medication.nomeMedicamento || "N/A"}</div>
+                  <div className="column">{services[medication.servicoID] || "Serviço não encontrado"}</div>
+                  <div className="column">{medication.tipoMedicamento || "N/A"}</div>
+                  <div className="column">{medication.quantidadeDisponivel || "N/A"}</div>
+                  <div className="column">{medication.quantidadeMinima || "N/A"}</div>
                 </div>
               ))}
             </div>
           ) : (
-            <p>No medications available at the moment.</p>
+            <p>No medicines needing attention.</p>
           )}
         </section>
 
         {/* Orders Section */}
         <section className="alerts-section">
           <h2>Encomendas Pendentes</h2>
-          {orders.length > 0 ? (
+          {Array.isArray(orders) && orders.length > 0 ? (
             <div className="alerts-table-container">
               <div className="alerts-table-header">
                 <div className="column">Encomenda N.º</div>
@@ -101,7 +100,7 @@ const Alerts = () => {
         {/* Requests Section */}
         <section className="alerts-section">
           <h2>Requisições Pendentes</h2>
-          {requests.length > 0 ? (
+          {Array.isArray(requests) && requests.length > 0 ? (
             <div className="alerts-table-container-request">
               <div className="alerts-table-header-request">
                 <div className="column">Requisição N.º</div>
@@ -113,12 +112,8 @@ const Alerts = () => {
                 <div className="alerts-table-row-request" key={request.requisicaoID}>
                   <div className="column">{request.requisicaoID}</div>
                   <div className="column">{`${request.nomeProprio} ${request.ultimoNome}`}</div>
-                  <div className="column">
-                    {new Date(request.dataRequisicao).toLocaleDateString()}
-                  </div>
-                  <div className="column">
-                    {request.aprovadoPorAdministrador ? "Aprovado" : "Pendente"}
-                  </div>
+                  <div className="column">{new Date(request.dataRequisicao).toLocaleDateString()}</div>
+                  <div className="column">{request.aprovadoPorAdministrador ? "Aprovado" : "Pendente"}</div>
                 </div>
               ))}
             </div>
