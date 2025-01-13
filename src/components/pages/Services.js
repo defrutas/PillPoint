@@ -15,6 +15,7 @@ const Services = () => {
     servicoDisponivel24horas: false,
   });
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
 
   // Fetch all services on component mount
   useEffect(() => {
@@ -43,6 +44,11 @@ const Services = () => {
 
     fetchServices();
   }, []);
+
+  // Filter services based on the search query
+  const filteredServices = services.filter((service) =>
+    service.nomeServico.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Handle input changes in the form
   const handleInputChange = (e) => {
@@ -161,14 +167,16 @@ const Services = () => {
 
   return (
     <div className="services-page">
+      {/* Toolbar with search functionality */}
       <Toolbar
         name="Serviços"
         buttonLabel="Adicionar Novo Serviço"
         onButtonClick={handleNewServiceClick}
+        onSearch={setSearchQuery} // Pass search query handler to Toolbar
       />
       <div className="services-content">
         {error && <p className="error">{error}</p>}
-        {services.length > 0 ? (
+        {filteredServices.length > 0 ? (
           <div className="services-table-container">
             <div className="services-table-header">
               <div className="column-id">#</div>
@@ -178,7 +186,7 @@ const Services = () => {
               <div className="column">Descrição</div>
               <div className="column">Ações</div>
             </div>
-            {services.map((service) => (
+            {filteredServices.map((service) => (
               <div className="services-table-row" key={service.servicoID}>
                 <div className="column-id">{service.servicoID}</div>
                 <div className="column">

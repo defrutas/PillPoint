@@ -15,6 +15,7 @@ const Product = () => {
     descricao: "",
   });
   const [editingMedicationID, setEditingMedicationID] = useState(null); // Track the ID of the medication being edited
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,6 +36,13 @@ const Product = () => {
     };
     fetchMedicamentos();
   }, []);
+
+  // Filter medicamentos based on the search query
+  const filteredMedicamentos = medicamentos.filter((medicamento) =>
+    medicamento.nomeMedicamento
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -179,10 +187,11 @@ const Product = () => {
         name="Medicamentos"
         buttonLabel="Adicionar Medicamento"
         onButtonClick={handleCreateMedication}
+        onSearch={setSearchQuery} // Handle the search query from the toolbar
       />
       <div className="product-content">
         {error && <p>{error}</p>}
-        {medicamentos.length > 0 ? (
+        {filteredMedicamentos.length > 0 ? (
           <div className="product-table-container">
             <div className="product-table-header">
               <div className="column-id">#</div>
@@ -193,7 +202,7 @@ const Product = () => {
               <div className="column">Lote</div>
               <div className="column">Ações</div>
             </div>
-            {medicamentos.map((medicamento, index) => (
+            {filteredMedicamentos.map((medicamento, index) => (
               <div className="product-table-row" key={index}>
                 <div className="column-id">{medicamento.medicamentoID}</div>
                 <div className="column">{medicamento.nomeMedicamento}</div>

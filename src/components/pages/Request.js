@@ -14,6 +14,7 @@ const Request = () => {
   const [error, setError] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [services, setServices] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
   const [newRequest, setNewRequest] = useState({
     dataRequisicao: new Date().toISOString().split("T")[0],
     dataEntrega: "",
@@ -124,6 +125,10 @@ const Request = () => {
 
     fetchAvailableServicos();
   }, [newRequest.medicamentos[0]?.medicamentoID]);
+
+  const filteredRequests = requisicoes.filter((req) =>
+    req.medicamento.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Handle Concluir button click (sets state to "Concluido")
   const handleConcluir = async (requisicaoID) => {
@@ -333,6 +338,7 @@ const Request = () => {
         name="Requisições"
         buttonLabel="Criar Requisição"
         onButtonClick={handleCreateRequest}
+        onSearch={setSearchQuery}
       />
       <div className="requests-content">
         {error && <p>{error}</p>}

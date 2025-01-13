@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import "./Toolbar.css";
 
-const Toolbar = ({ name, buttonLabel, onButtonClick }) => {
+const Toolbar = ({ name, buttonLabel, onButtonClick, onSearch }) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
+    const query = e.target.value;
+    setSearchQuery(query);
+    if (onSearch) {
+      onSearch(query); // Pass the search query back to the parent
+    }
   };
 
   return (
@@ -28,13 +32,9 @@ const Toolbar = ({ name, buttonLabel, onButtonClick }) => {
             placeholder="Pesquisar..."
           />
         </div>
-        {/* Render the button only if buttonLabel is passed */}
         {buttonLabel && (
           <div className="toolbar-button">
-            <button
-              className="toolbar-button"
-              onClick={onButtonClick} // Trigger the callback when clicked
-            >
+            <button className="toolbar-button" onClick={onButtonClick}>
               {buttonLabel}
             </button>
           </div>
@@ -45,4 +45,3 @@ const Toolbar = ({ name, buttonLabel, onButtonClick }) => {
 };
 
 export default Toolbar;
-

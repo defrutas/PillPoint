@@ -9,6 +9,7 @@ const Encomendas = () => {
   const [fornecedores, setFornecedores] = useState([]);
   const [error, setError] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [newEncomenda, setNewEncomenda] = useState({
     dataEncomenda: new Date().toISOString().split("T")[0],
     fornecedorID: "",
@@ -67,6 +68,12 @@ const Encomendas = () => {
       setNewEncomenda((prev) => ({ ...prev, createdBy: fullName }));
     }
   }, []);
+
+  const filteredEncomendas = encomendas.filter((encomenda) =>
+    encomenda.medicamentos.some((medicamento) =>
+      medicamento.nomeMedicamento.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
 
   useEffect(() => {
     fetchEncomendas();
@@ -220,6 +227,7 @@ const Encomendas = () => {
         name="Encomendas"
         buttonLabel="Nova Encomenda"
         onButtonClick={handleCreateOrder}
+        onSearch={setSearchQuery}
       />
       <div className="encomendas-content">
         {error && <p>{error}</p>}
@@ -238,7 +246,7 @@ const Encomendas = () => {
               <div className="column">Ações</div>
             </div>
             {/* Table Rows */}
-            {encomendas.map((encomenda, index) => (
+            {filteredEncomendas.map((encomenda, index) => (
               <div className="encomendas-table-row" key={index}>
                 <div className="column-id">{encomenda.encomendaID}</div>
                 <div className="column">
