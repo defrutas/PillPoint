@@ -170,7 +170,7 @@ const Services = () => {
         {services.length > 0 ? (
           <div className="services-table-container">
             <div className="services-table-header">
-              <div className="column">#</div>
+              <div className="column-id">#</div>
               <div className="column">Nome</div>
               <div className="column">Localidade</div>
               <div className="column">Disponível 24h</div>
@@ -179,7 +179,7 @@ const Services = () => {
             </div>
             {services.map((service) => (
               <div className="services-table-row" key={service.servicoID}>
-                <div className="column">{service.servicoID}</div>
+                <div className="column-id">{service.servicoID}</div>
                 <div className="column">
                   <Link
                     to={`/services/${service.servicoID}`}

@@ -184,7 +184,7 @@ const Product = () => {
         {medicamentos.length > 0 ? (
           <div className="product-table-container">
             <div className="product-table-header">
-              <div className="column">#</div>
+              <div className="column-id">#</div>
               <div className="column">Nome</div>
               <div className="column">Tipo</div>
               <div className="column">Quantidade</div>
@@ -194,7 +194,7 @@ const Product = () => {
             </div>
             {medicamentos.map((medicamento, index) => (
               <div className="product-table-row" key={index}>
-                <div className="column">{medicamento.medicamentoID}</div>
+                <div className="column-id">{medicamento.medicamentoID}</div>
                 <div className="column">{medicamento.nomeMedicamento}</div>
                 <div className="column">{medicamento.tipoMedicamento}</div>
                 <div className="column">{medicamento.stockGlobal}</div>

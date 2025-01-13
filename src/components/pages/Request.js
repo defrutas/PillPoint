@@ -125,6 +125,41 @@ const Request = () => {
     fetchAvailableServicos();
   }, [newRequest.medicamentos[0]?.medicamentoID]);
 
+  // Handle Concluir button click (sets state to "Concluido")
+  const handleConcluir = async (requisicaoID) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("No authentication token available.");
+
+      const response = await fetch(
+        `http://4.211.87.132:5000/api/requests/complete/${requisicaoID}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to complete the request");
+      }
+
+      const updatedRequisicoes = requisicoes.map((req) =>
+        req.requisicaoID === requisicaoID
+          ? { ...req, estadoID: 4 } // Set state to "Concluido"
+          : req
+      );
+
+      setRequisicoes(updatedRequisicoes);
+    } catch (error) {
+      console.error("Error completing request:", error);
+      setError("Failed to complete the request");
+    }
+  };
+
+  // Handle Aprovar button click (sets state to "Aguardar Envio")
   const handleApprove = async (requisicaoID) => {
     try {
       const token = localStorage.getItem("authToken");
@@ -135,21 +170,26 @@ const Request = () => {
         {
           method: "PUT",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         }
       );
 
-      if (!response.ok) throw new Error("Failed to approve request.");
+      if (!response.ok) {
+        throw new Error("Failed to approve the request");
+      }
 
-      setRequisicoes((prevRequisicoes) =>
-        prevRequisicoes.map((req) =>
-          req.requisicaoID === requisicaoID ? { ...req, estadoID: 4 } : req
-        )
+      const updatedRequisicoes = requisicoes.map((req) =>
+        req.requisicaoID === requisicaoID
+          ? { ...req, estadoID: 3 } // Set state to "Aguardar Envio"
+          : req
       );
-    } catch (err) {
-      setError(err.message);
+
+      setRequisicoes(updatedRequisicoes);
+    } catch (error) {
+      console.error("Error approving request:", error);
+      setError("Failed to approve the request");
     }
   };
 
@@ -183,15 +223,17 @@ const Request = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-  
+
     if (name === "medicamentoID" || name === "quantidadeEnviada") {
       // Handle nested medicamento data
       setNewRequest((prev) => {
         const medicamentos = [...prev.medicamentos];
         if (medicamentos.length === 0) medicamentos.push({});
-  
-        medicamentos[0][name === "medicamentoID" ? "medicamentoID" : "quantidade"] = value;
-  
+
+        medicamentos[0][
+          name === "medicamentoID" ? "medicamentoID" : "quantidade"
+        ] = value;
+
         return {
           ...prev,
           medicamentos,
@@ -204,7 +246,7 @@ const Request = () => {
         [name]: value, // Dynamically update the state key based on the input name
       }));
     }
-  };  
+  };
 
   const handleCreateRequest = () => {
     setShowCreateForm(true);
@@ -212,20 +254,21 @@ const Request = () => {
 
   const submitCreateRequest = async (e) => {
     e.preventDefault();
-  
+
     try {
       const token = localStorage.getItem("authToken");
       if (!token) throw new Error("No authentication token available.");
-  
+
       // Validate mandatory fields
-      if (!newRequest.servicoID) throw new Error("Serviço Hospitalar is required.");
+      if (!newRequest.servicoID)
+        throw new Error("Serviço Hospitalar is required.");
       if (
         !Array.isArray(newRequest.medicamentos) ||
         newRequest.medicamentos.length === 0
       ) {
         throw new Error("At least one Medicamento is required.");
       }
-  
+
       // Format medicamentos array
       const formattedMedicamentos = newRequest.medicamentos.map((med) => {
         if (!med.medicamentoID || !med.quantidade) {
@@ -238,7 +281,7 @@ const Request = () => {
           quantidade: med.quantidade,
         };
       });
-  
+
       // Construct payload with estadoID defaulting to 1
       const payload = {
         servicoHospitalarRemetenteID: newRequest.servicoID, // Correctly mapped value
@@ -247,9 +290,9 @@ const Request = () => {
         medicamentos: formattedMedicamentos,
         estadoID: 1, // Default value for estadoID
       };
-  
+
       console.log("Payload:", payload); // Debug payload before sending
-  
+
       // Send request to API
       const response = await fetch(
         "http://4.211.87.132:5000/api/requests/create",
@@ -262,16 +305,16 @@ const Request = () => {
           body: JSON.stringify(payload),
         }
       );
-  
+
       if (!response.ok) {
         const errorResponse = await response.json();
         console.error("API Error:", errorResponse);
         throw new Error(errorResponse.message || "Failed to create request.");
       }
-  
+
       const createdRequest = await response.json();
       console.log("Created request:", createdRequest);
-  
+
       // Update UI state
       setRequisicoes((prevRequisicoes) => [...prevRequisicoes, createdRequest]);
       setShowCreateForm(false);
@@ -280,7 +323,6 @@ const Request = () => {
       setError(err.message);
     }
   };
-  
 
   const getEstadoName = (estadoID) => ESTADO_MAP[estadoID] || "Desconhecido";
 
@@ -296,10 +338,11 @@ const Request = () => {
         {requisicoes.length > 0 ? (
           <div className="requests-table-container">
             <div className="requests-table-header">
-              <div className="column">ID</div>
+              <div className="column-id">ID</div>
               <div className="column">Medicamento</div>
               <div className="column">Quantidade</div>
               <div className="column">Criado por (Serviço)</div>
+              <div className="column">Enviado por (Serviço)</div>
               <div className="column">Criado por (Profissional)</div>
               <div className="column">Data Requisição</div>
               <div className="column">Data Entrega</div>
@@ -308,12 +351,17 @@ const Request = () => {
             </div>
             {requisicoes.map((req) => (
               <div className="requests-table-row" key={req.requisicaoID}>
-                <div className="column">{req.requisicaoID}</div>
-                <div className="column">{medicamentosList[req.medicamentoID]?.nomeMedicamento}</div>
-                <div className="column">{req.quantidadeMedicamento}</div>
-                <div className="column">{req.nomeServicoHospitalarRemetente}</div>
+                <div className="column-id">{req.requisicaoID}</div>
                 <div className="column">
-                  {req.nomeProfissional} {req.ultimoNomeProfissional}{" "}
+                  {medicamentosList[req.medicamentoID]?.nomeMedicamento}
+                </div>
+                <div className="column">{req.quantidadeMedicamento}</div>
+                <div className="column">{req.nomeServico}</div>
+                <div className="column">
+                  {req.nomeServicoHospitalarRemetente}
+                </div>
+                <div className="column">
+                  {req.nomeProfissional} {req.ultimoNomeProfissional}
                 </div>
                 <div className="column">
                   {new Date(req.dataRequisicao).toLocaleDateString()}
@@ -327,18 +375,43 @@ const Request = () => {
                   {getEstadoName(req.estadoID)}
                 </div>
                 <div className="column">
-                  <button
-                    className="approve-btn"
-                    onClick={() => handleApprove(req.requisicaoID)}
-                  >
-                    Aprovar
-                  </button>
-                  <button
-                    className="cancel-btn"
-                    onClick={() => handleCancel(req.requisicaoID)}
-                  >
-                    Cancelar
-                  </button>
+                  {/* Only show buttons when the state is not Concluído (estadoID = 4) or Cancelado (estadoID = 2) */}
+                  {req.estadoID !== 4 && req.estadoID !== 2 ? (
+                    <>
+                      {req.estadoID === 1 || req.estadoID === 2 ? (
+                        <button
+                          className="approve-btn"
+                          onClick={() => handleApprove(req.requisicaoID)}
+                          disabled={
+                            req.estadoID === 3 ||
+                            req.estadoID === 4 ||
+                            req.estadoID === 2
+                          }
+                        >
+                          Aprovar
+                        </button>
+                      ) : req.estadoID === 3 ? (
+                        <button
+                          className="concluir-btn"
+                          onClick={() => handleConcluir(req.requisicaoID)}
+                          disabled={req.estadoID === 4 || req.estadoID === 2}
+                        >
+                          Concluir
+                        </button>
+                      ) : (
+                        <span className="status-completed">
+                          Aprovado / Concluído
+                        </span>
+                      )}
+                      <button
+                        className="cancel-btn"
+                        onClick={() => handleCancel(req.requisicaoID)}
+                      >
+                        Cancelar
+                      </button>
+                    </>
+                  ) : null}{" "}
+                  {/* No buttons will be rendered if estadoID is 4 or 2 */}
                 </div>
               </div>
             ))}
@@ -415,13 +488,13 @@ const Request = () => {
                   )}
                 </select>
                 <label htmlFor="quantidadeEnviada">Quantidade</label>
-              <input
-                type="number"
-                name="quantidadeEnviada"
-                value={newRequest.quantidadeMedicamento}
-                onChange={handleInputChange}
-                required
-              />
+                <input
+                  type="number"
+                  name="quantidadeEnviada"
+                  value={newRequest.quantidadeMedicamento}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
               <button type="submit">Criar Requisição</button>
             </form>

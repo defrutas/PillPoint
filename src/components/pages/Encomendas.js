@@ -133,13 +133,28 @@ const Encomendas = () => {
   const submitCreateOrder = async (e) => {
     e.preventDefault();
     try {
-      // Retrieve the token from localStorage
       const token = localStorage.getItem("authToken");
       if (!token) throw new Error("No authentication token available.");
-
-      // Add estadoID with default value 1 to the request payload
-      const payload = { ...newEncomenda, estadoID: 1 };
-
+  
+      // Add medicamento details to the payload
+      const medicamento = medicamentos.find(
+        (med) => med.medicamentoID === parseInt(newEncomenda.medicamentoID)
+      );
+      const medicamentoDetails = medicamento
+        ? {
+            medicamentoID: medicamento.medicamentoID,
+            nomeMedicamento: medicamento.nomeMedicamento,
+            quantidade: newEncomenda.quantidadeEnviada,
+          }
+        : [];
+  
+      // Prepare payload with medicamentos array
+      const payload = {
+        ...newEncomenda,
+        estadoID: 1,
+        medicamentos: [medicamentoDetails], // Include medicamentos array with both ID and name
+      };
+  
       const response = await fetch(
         "http://4.211.87.132:5000/api/orders/create",
         {
@@ -151,13 +166,13 @@ const Encomendas = () => {
           body: JSON.stringify(payload),
         }
       );
-
+  
       if (!response.ok) {
         const errorDetails = await response.json();
         console.error("Server Error Details:", errorDetails);
         throw new Error("Failed to create order");
       }
-
+  
       const createdOrder = await response.json();
       setEncomendas((prev) => [...prev, createdOrder]); // Update the orders list
       setShowCreateForm(false); // Close the form
@@ -207,71 +222,77 @@ const Encomendas = () => {
       <div className="encomendas-content">
         {error && <p>{error}</p>}
         {encomendas && encomendas.length > 0 ? (
-  <div className="encomendas-table-container">
-    {/* Table Header */}
-    <div className="encomendas-table-header">
-      <div className="column">#</div>
-      <div className="column">Medicamento</div>
-      <div className="column">Criado por</div>
-      <div className="column">Fornecedor</div>
-      <div className="column">Criado em</div>
-      <div className="column">Quantidade Encomendada</div>
-      <div className="column">Previsão de Entrega</div>
-      <div className="column-state">Estado</div>
-      <div className="column">Ações</div>
-    </div>
-    {/* Table Rows */}
-    {encomendas.map((encomenda, index) => (
-      <div className="encomendas-table-row" key={index}>
-        <div className="column">{encomenda.encomendaID}</div>
-        <div className="column">
-          {/* Check if medicamentos exists and is an array */}
-          {Array.isArray(encomenda.medicamentos) && encomenda.medicamentos.length > 0 ? (
-            encomenda.medicamentos.map((medicamento) => (
-              <div key={medicamento.medicamentoID}>
-                {medicamento.nomeMedicamento}
+          <div className="encomendas-table-container">
+            {/* Table Header */}
+            <div className="encomendas-table-header">
+              <div className="column-id">#</div>
+              <div className="column">Medicamento</div>
+              <div className="column">Criado por</div>
+              <div className="column">Fornecedor</div>
+              <div className="column">Criado em</div>
+              <div className="column">Quantidade Encomendada</div>
+              <div className="column">Previsão de Entrega</div>
+              <div className="column-state">Estado</div>
+              <div className="column">Ações</div>
+            </div>
+            {/* Table Rows */}
+            {encomendas.map((encomenda, index) => (
+              <div className="encomendas-table-row" key={index}>
+                <div className="column-id">{encomenda.encomendaID}</div>
+                <div className="column">
+                  {/* Check if medicamentos exists and is an array */}
+                  {Array.isArray(encomenda.medicamentos) &&
+                  encomenda.medicamentos.length > 0 ? (
+                    encomenda.medicamentos.map((medicamento) => (
+                      <div key={medicamento.medicamentoID}>
+                        {medicamento.nomeMedicamento}
+                      </div>
+                    ))
+                  ) : (
+                    <span>No Medicamentos</span>
+                  )}
+                </div>
+                <div className="column">
+                  {encomenda.profissionalNome}{" "}
+                  {encomenda.profissionalUltimoNome}
+                </div>
+                <div className="column">{encomenda.nomeFornecedor}</div>
+                <div className="column">
+                  {new Date(encomenda.dataEncomenda).toLocaleDateString()}
+                </div>
+                <div className="column">{encomenda.quantidadeEnviada}</div>
+                <div className="column">
+                  {encomenda.dataEntrega
+                    ? new Date(encomenda.dataEntrega).toLocaleDateString()
+                    : "N/A"}
+                </div>
+                <div
+                  className={`column-state ${getStatusClass(
+                    encomenda.estadoID
+                  )}`}
+                >
+                  {getStatusText(encomenda.estadoID)}
+                </div>
+                <div className="column actions">
+                  <button
+                    className="approve-btn"
+                    onClick={() => handleApprove(encomenda.encomendaID)}
+                  >
+                    Aprovar
+                  </button>
+                  <button
+                    className="cancel-btn"
+                    onClick={() => handleCancel(encomenda.encomendaID)}
+                  >
+                    Cancelar
+                  </button>
+                </div>
               </div>
-            ))
-          ) : (
-            <span>No Medicamentos</span>
-          )}
-        </div>
-        <div className="column">
-          {encomenda.profissionalNome} {encomenda.profissionalUltimoNome}
-        </div>
-        <div className="column">{encomenda.nomeFornecedor}</div>
-        <div className="column">
-          {new Date(encomenda.dataEncomenda).toLocaleDateString()}
-        </div>
-        <div className="column">{encomenda.quantidadeEnviada}</div>
-        <div className="column">
-          {encomenda.dataEntrega
-            ? new Date(encomenda.dataEntrega).toLocaleDateString()
-            : "N/A"}
-        </div>
-        <div className={`column-state ${getStatusClass(encomenda.estadoID)}`}>
-          {getStatusText(encomenda.estadoID)}
-        </div>
-        <div className="column actions">
-          <button
-            className="approve-btn"
-            onClick={() => handleApprove(encomenda.encomendaID)}
-          >
-            Aprovar
-          </button>
-          <button
-            className="cancel-btn"
-            onClick={() => handleCancel(encomenda.encomendaID)}
-          >
-            Cancelar
-          </button>
-        </div>
-      </div>
-    ))}
-  </div>
-) : (
-  <p>No encomendas found.</p>
-)}
+            ))}
+          </div>
+        ) : (
+          <p>No encomendas found.</p>
+        )}
       </div>
 
       {showCreateForm && (
