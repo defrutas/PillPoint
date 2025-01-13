@@ -120,6 +120,7 @@ const Services = () => {
             : [...prevState, updatedService]
         );
         setIsModalOpen(false);
+        window.location.reload();
       } else {
         setError("Failed to save service");
       }

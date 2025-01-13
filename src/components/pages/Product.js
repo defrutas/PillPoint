@@ -165,7 +165,8 @@ const Product = () => {
         dataValidade: "",
         lote: "",
       }); // Reset form fields
-      setShowCreateForm(false); // Close the form
+      setShowCreateForm(false);
+      window.location.reload();
     } catch (error) {
       setError("Failed to create or update medication: " + error.message);
       console.error(error);

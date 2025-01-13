@@ -318,6 +318,7 @@ const Request = () => {
       // Update UI state
       setRequisicoes((prevRequisicoes) => [...prevRequisicoes, createdRequest]);
       setShowCreateForm(false);
+      window.location.reload();
     } catch (err) {
       console.error("Error in submitCreateRequest:", err);
       setError(err.message);

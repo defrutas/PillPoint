@@ -175,7 +175,9 @@ const Encomendas = () => {
   
       const createdOrder = await response.json();
       setEncomendas((prev) => [...prev, createdOrder]); // Update the orders list
-      setShowCreateForm(false); // Close the form
+      setShowCreateForm(false);
+      window.location.reload();
+      
     } catch (error) {
       setError("Failed to create order");
       console.error("Submit Create Order Error:", error);
