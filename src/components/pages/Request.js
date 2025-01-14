@@ -126,10 +126,6 @@ const Request = () => {
     fetchAvailableServicos();
   }, [newRequest.medicamentos[0]?.medicamentoID]);
 
-  const filteredRequests = requisicoes.filter((req) =>
-    req.medicamento.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   // Handle Concluir button click (sets state to "Concluido")
   const handleConcluir = async (requisicaoID) => {
     try {
@@ -338,7 +334,6 @@ const Request = () => {
         name="Requisições"
         buttonLabel="Criar Requisição"
         onButtonClick={handleCreateRequest}
-        onSearch={setSearchQuery}
       />
       <div className="requests-content">
         {error && <p>{error}</p>}

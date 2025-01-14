@@ -233,7 +233,6 @@ const Encomendas = () => {
         {error && <p>{error}</p>}
         {encomendas && encomendas.length > 0 ? (
           <div className="encomendas-table-container">
-            {/* Table Header */}
             <div className="encomendas-table-header">
               <div className="column-id">#</div>
               <div className="column">Medicamento</div>
