@@ -70,7 +70,7 @@ const Alerts = () => {
               ))}
             </div>
           ) : (
-            <p>No medicines needing attention.</p>
+            <p>Nao existem medicamentos em rutura de stock.</p>
           )}
         </section>
 
@@ -81,7 +81,7 @@ const Alerts = () => {
             <div className="alerts-table-container">
               <div className="alerts-table-header">
                 <div className="column">Encomenda N.º</div>
-                <div className="column">Completa?</div>
+                <div className="column">Estado</div>
                 <div className="column">Data de Encomenda</div>
               </div>
               {orders.map((order) => (
@@ -93,7 +93,7 @@ const Alerts = () => {
               ))}
             </div>
           ) : (
-            <p>No incomplete orders available at the moment.</p>
+            <p>Não existem encomendas pendentes.</p>
           )}
         </section>
 
@@ -106,7 +106,7 @@ const Alerts = () => {
                 <div className="column">Requisição N.º</div>
                 <div className="column">Nome</div>
                 <div className="column">Data de Pedido</div>
-                <div className="column">Aprovado?</div>
+                <div className="column">Estado</div>
               </div>
               {requests.map((request) => (
                 <div className="alerts-table-row-request" key={request.requisicaoID}>
@@ -118,7 +118,7 @@ const Alerts = () => {
               ))}
             </div>
           ) : (
-            <p>No requests available at the moment.</p>
+            <p>Não existem requisições pendentes.</p>
           )}
         </section>
       </div>
